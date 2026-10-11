@@ -16,7 +16,7 @@ from typing import Any, Optional
 import numpy as np
 
 from . import __version__
-from .atlas import AtlasInfo, assign_uvs
+from .atlas import AtlasError, AtlasInfo, assign_uvs
 from .bbmodel import (
     BLOCKBENCH_REFERENCE_VERSION,
     FORMAT_VERSION,
@@ -79,10 +79,9 @@ def generate(
     spec, _provided = normalize_spec(spec)
 
     t0 = time.perf_counter()
-    model, notes = build_model(spec, settings)
+    model, notes, atlas, spec = _build_and_pack(spec, settings)
     model.meta["seed"] = settings.seed
     t1 = time.perf_counter()
-    atlas = assign_uvs(model, settings.texture_size, settings.auto_texture_upgrade)
     if atlas.upgraded:
         notes.append(
             f"textura: o atlas não coube em {settings.texture_size}x{settings.texture_size}; usada {atlas.size}x{atlas.size}"
@@ -126,6 +125,28 @@ def generate(
         base_name=name,
         timings={"construcao_s": t1 - t0, "uv_textura_s": t2 - t1, "exportacao_validacao_s": t3 - t2},
     )
+
+
+def _build_and_pack(spec: dict[str, Any], settings: BuildSettings):
+    """Monta o modelo e o atlas; se não couber nem em 256x256, reduz a escala aos poucos (com aviso)."""
+    requested_scale = float(spec["scale"])
+    current = dict(spec)
+    while True:
+        model, notes = build_model(current, settings)
+        try:
+            atlas = assign_uvs(model, settings.texture_size, settings.auto_texture_upgrade)
+        except AtlasError:
+            next_scale = round(float(current["scale"]) - 0.1, 2)
+            if next_scale < 0.6 - 1e-9:
+                raise
+            current = {**current, "scale": next_scale}
+            continue
+        if float(current["scale"]) != requested_scale:
+            notes.append(
+                f"escala reduzida de {requested_scale:g} para {float(current['scale']):g} para o atlas caber na "
+                f"textura {atlas.size}x{atlas.size}"
+            )
+        return model, notes, atlas, current
 
 
 def _sha256(data: bytes) -> str:

@@ -134,7 +134,10 @@ def load_llm(model_id: str = DEFAULT_MODEL, device: str = "auto", revision: Opti
         import transformers
         from transformers import AutoModelForCausalLM, AutoTokenizer
     except ImportError as exc:  # pragma: no cover - depende do ambiente
-        raise LLMError(f"bibliotecas da IA ausentes ({exc}); rode a Etapa 1 de novo") from exc
+        raise LLMError(
+            f"bibliotecas da IA ausentes ({exc}). No Google Colab elas já vêm instaladas; "
+            "fora dele, instale os pacotes 'torch' e 'transformers'"
+        ) from exc
 
     if device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"

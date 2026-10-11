@@ -30,6 +30,7 @@ from .palette import Ramp
 from .uv import FACE_NORMALS, FACES, box_uv_face_rects, rect_bounds, uv_to_local
 
 BELLY_PARTS = {"pelvis", "torso", "chest", "neck", "tail", "jaw"}
+LIMB_PARTS = {"thigh", "shin", "metatarsus", "upper_arm", "forearm", "foot"}
 PATTERN_PARTS = {"pelvis", "torso", "chest", "neck", "tail", "skull", "snout", "thigh", "upper_arm"}
 RIM_PARTS = {"pelvis", "torso", "neck", "skull", "snout", "tail"}
 
@@ -177,6 +178,9 @@ class ProceduralPainter:
             zone[:] = 0
         elif ny < -0.6:
             zone[:] = 3 if part in BELLY_PARTS else 2
+        elif part in LIMB_PARTS:
+            # membros: cor principal uniforme, só a borda de cima um pouco mais escura
+            zone = np.where(ry > 0.85, 0, 1)
         else:
             zone = np.where(ry > 0.62, 0, np.where(ry > 0.40, 1, 2))
             if part in BELLY_PARTS:
@@ -200,16 +204,15 @@ class ProceduralPainter:
         rgb[zone == 2] = sec[zone == 2]
         rgb[zone == 3] = bel[zone == 3]
 
-        # transição pontilhada entre lateral e ventre (linha intencional)
+        # faixa de transição nítida entre lateral e ventre (tom intermediário, sem pontilhado)
         side = abs(ft.normal[1]) < 0.6
         if side and part in BELLY_PARTS:
             ry = ft.rel[:, 1]
             belly_line = 0.30 if part != "jaw" else 0.55
             texel = 1.0 / max(1, ft.fh)
             edge = (ry >= belly_line) & (ry < belly_line + texel * 1.01)
-            checker = ((ft.col + ft.row) % 2) == 0
-            mix_mask = edge & checker
-            rgb[mix_mask] = self._ramp_pick(self.belly, np.full(n, -1))[mix_mask]
+            mid = ((sec.astype(np.int32) + bel.astype(np.int32)) // 2)
+            rgb[edge] = mid[edge]
 
         # microtextura do material
         rgb = self._micro(ft, rgb, zone)

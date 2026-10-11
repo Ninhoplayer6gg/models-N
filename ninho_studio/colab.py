@@ -39,6 +39,15 @@ JAW_PT = {"automática": None, "fechada": 0.0, "entreaberta": 0.35, "aberta": 0.
 INTENSITY_PT = {"automática": None, "suave": 0.35, "média": 0.6, "forte": 0.85}
 TRI_PT = {"automático": None, "sim": True, "não": False}
 
+# Nomes dos campos do formulário da Etapa 3 do notebook (na mesma ordem).
+CAMPOS_FORMULARIO = (
+    "modo", "descricao", "nome", "cabeca", "focinho", "pescoco", "tronco_comprimento", "tronco_volume", "bracos",
+    "pernas_comprimento", "pernas_espessura", "cauda_comprimento", "cauda_espessura", "escala", "boca",
+    "cor_principal", "cor_secundaria", "cor_barriga", "cor_padrao", "cor_olhos", "padrao", "intensidade_padrao",
+    "pele", "detalhe", "chifres", "espinhos", "dentes", "cicatrizes", "crista_penas", "textura",
+    "orcamento_elementos", "seed", "criatividade_ia", "tentativas_ia", "refazer_interpretacao",
+)
+
 
 @dataclass
 class _State:
@@ -65,10 +74,6 @@ def _in_notebook() -> bool:
         return get_ipython() is not None
     except ImportError:
         return False
-
-
-def _in_colab() -> bool:
-    return "google.colab" in sys.modules or os.path.isdir("/content") and _in_notebook() and _has_colab()
 
 
 def _has_colab() -> bool:
@@ -315,6 +320,7 @@ def _clean_adjustments(adj: dict[str, Any]) -> dict[str, Any]:
 def gerar_e_mostrar(params: Optional[dict[str, Any]] = None, llm: Any = None, out_dir: str = OUT_DIR_DEFAULT,
                     visualizador_3d: bool = True, mostrar_atlas: bool = True, mostrar_esqueleto: bool = True) -> Any:
     from .ai import interpret
+    from .atlas import AtlasError
     from .builders import BudgetError
     from .export import save_outputs
     from .pipeline import generate
@@ -388,6 +394,9 @@ def gerar_e_mostrar(params: Optional[dict[str, Any]] = None, llm: Any = None, ou
         _box("❌ Orçamento de elementos pequeno demais", _html.escape(str(exc)) +
              f"<br>Aumente “orcamento_elementos” para pelo menos {exc.needed}.", "error")
         return None
+    except AtlasError as exc:
+        _box("❌ A textura não comporta este modelo", _html.escape(str(exc)), "error")
+        return None
     except Exception as exc:  # noqa: BLE001
         _box("❌ Erro ao gerar o modelo", f"{type(exc).__name__}: {_html.escape(str(exc))}", "error")
         raise
@@ -400,7 +409,7 @@ def gerar_e_mostrar(params: Optional[dict[str, Any]] = None, llm: Any = None, ou
     summary = (
         f"<b>{_html.escape(result.spec['name'])}</b> · origem dos parâmetros: <b>{label}</b><br>"
         f"{result.model.cube_count} cubos · {len(result.model.bones)} ossos · textura {result.atlas.size}x{result.atlas.size} "
-        f"(procedural) · atlas {100 * result.atlas.usage:.0f}% ocupado · seed {settings.seed}"
+        f"(procedural) · {100 * result.atlas.usage:.0f}% da área do atlas reservada · seed {settings.seed}"
     )
     _box("✅ Modelo gerado" if v.ok else "⚠️ Modelo gerado com problemas", summary + _list(result.notes),
          "ok" if v.ok else "warn")

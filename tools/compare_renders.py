@@ -56,5 +56,45 @@ def compare(bbmodel_path: str, shots_dir: str) -> dict:
     return result
 
 
+def side_by_side(bbmodel_path: str, shots_dir: str, out_path: str) -> None:
+    """Imagem com a prévia do Ninho (esquerda) e a captura do Blockbench (direita) para cada vista."""
+    from PIL import ImageDraw
+
+    from ninho_studio.render import _font
+
+    bb = json.load(open(bbmodel_path, encoding="utf-8"))
+    mesh = build_mesh(bb)
+    tex = texture_array(bb)
+    rows = []
+    for key, label in (("perspectiva", "Perspectiva"), ("lado_direito", "Lado direito"), ("frente", "Frente")):
+        ours = Image.fromarray(render(mesh, tex, VIEWS[key], size=400, background=(255, 255, 255, 255))).convert("RGB")
+        shot = Image.open(os.path.join(shots_dir, f"bb_{key}.png")).convert("RGBA")
+        shot = Image.alpha_composite(Image.new("RGBA", shot.size, (255, 255, 255, 255)), shot).convert("RGB")
+        arr = np.array(shot)
+        ys, xs = np.nonzero((arr < 250).any(axis=2))
+        pad = 30
+        crop = shot.crop((max(xs.min() - pad, 0), max(ys.min() - pad, 0), min(xs.max() + pad, shot.width),
+                          min(ys.max() + pad, shot.height)))
+        k = 400 / max(crop.size)
+        crop = crop.resize((int(crop.width * k), int(crop.height * k)))
+        tile = Image.new("RGB", (400, 400), "white")
+        tile.paste(crop, ((400 - crop.width) // 2, (400 - crop.height) // 2))
+        row = Image.new("RGB", (800, 430), "white")
+        d = ImageDraw.Draw(row)
+        font = _font(17)
+        d.text((10, 6), f"{label}: prévia do Ninho", fill=(20, 20, 20), font=font)
+        d.text((410, 6), f"{label}: Blockbench 5.2.2", fill=(20, 20, 20), font=font)
+        row.paste(ours, (0, 30))
+        row.paste(tile, (400, 30))
+        rows.append(row)
+    sheet = Image.new("RGB", (800, 430 * len(rows)), "white")
+    for i, r in enumerate(rows):
+        sheet.paste(r, (0, i * 430))
+    sheet.save(out_path)
+
+
 if __name__ == "__main__":
-    print(json.dumps(compare(sys.argv[1], sys.argv[2]), indent=2))
+    result = compare(sys.argv[1], sys.argv[2])
+    print(json.dumps(result, indent=2))
+    if len(sys.argv) > 3:
+        side_by_side(sys.argv[1], sys.argv[2], sys.argv[3])

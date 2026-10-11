@@ -151,10 +151,11 @@ _TEMPLATE = r"""<!DOCTYPE html>
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
     gl.viewport(0, 0, w, h);
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    var dist = radius / Math.sin(0.30) * 1.1 / zoom;
+    var fovV = 0.6, fovH = 2 * Math.atan(Math.tan(fovV / 2) * (w / h));
+    var dist = radius / Math.sin(Math.min(fovV, fovH) / 2) * 1.05 / zoom;
     var eye = [center[0] + dist * Math.cos(pitch) * Math.cos(yaw), center[1] + dist * Math.sin(pitch), center[2] + dist * Math.cos(pitch) * Math.sin(yaw)];
     var up = Math.abs(pitch) > 1.5 ? [-1, 0, 0] : [0, 1, 0];
-    var mvp = mul(persp(0.6, w / h, dist * 0.05, dist * 4 + radius * 4), lookAt(eye, center, up));
+    var mvp = mul(persp(fovV, w / h, dist * 0.05, dist * 4 + radius * 4), lookAt(eye, center, up));
 
     gl.enable(gl.DEPTH_TEST);
     gl.useProgram(lineProg);

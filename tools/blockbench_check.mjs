@@ -118,6 +118,51 @@ for (const v of views) {
   shots[v.id] = file;
 }
 
+// pose de teste (opcional): gira ossos no próprio Blockbench para conferir os pivôs/articulações
+const poseArg = arg('pose');
+if (poseArg) {
+  const pose = JSON.parse(fs.readFileSync(poseArg, 'utf8'));
+  await page.evaluate((pose) => {
+    for (const [name, rot] of Object.entries(pose)) {
+      const g = Group.all.find((x) => x.name === name);
+      if (!g) throw new Error('osso não encontrado: ' + name);
+      g.rotation[0] += rot[0]; g.rotation[1] += rot[1]; g.rotation[2] += rot[2];
+    }
+    Canvas.updateAllBones();
+    Canvas.updateAllPositions();
+  }, pose);
+  for (const v of views.filter((x) => x.id === 'perspectiva' || x.id === 'lado_direito')) {
+    const dataUrl = await page.evaluate(({ v, center, radius }) => {
+      const p = Preview.selected;
+      const n = Math.hypot(...v.dir);
+      const d = v.dir.map((x) => x / n);
+      if (v.ortho) {
+        const dist = 400;
+        p.loadAnglePreset({ projection: 'orthographic', position: [center[0] + d[0] * dist, center[1] + d[1] * dist, center[2] + d[2] * dist], target: center.slice() });
+        p.camera.zoom = (p.width / 40) / (v.span * 1.25);
+        p.camera.updateProjectionMatrix();
+      } else {
+        const dist = radius / Math.sin((45 / 2) * Math.PI / 180) * 1.1;
+        p.loadAnglePreset({ projection: 'perspective', position: [center[0] + d[0] * dist, center[1] + d[1] * dist, center[2] + d[2] * dist], target: center.slice(), fov: 45 });
+      }
+      p.render();
+      return p.canvas.toDataURL('image/png');
+    }, { v, center, radius });
+    const file = path.join(outDir, `bb_pose_${v.id}.png`);
+    fs.writeFileSync(file, Buffer.from(dataUrl.split(',')[1], 'base64'));
+    shots['pose_' + v.id] = file;
+  }
+  // devolve a pose original antes de reexportar
+  await page.evaluate((pose) => {
+    for (const [name, rot] of Object.entries(pose)) {
+      const g = Group.all.find((x) => x.name === name);
+      g.rotation[0] -= rot[0]; g.rotation[1] -= rot[1]; g.rotation[2] -= rot[2];
+    }
+    Canvas.updateAllBones();
+    Canvas.updateAllPositions();
+  }, pose);
+}
+
 // ida e volta + exportação Bedrock + visible box
 const extra = await page.evaluate(() => {
   const resaved = Codecs.project.compile({ raw: true, bitmaps: true });

@@ -70,9 +70,21 @@ COLOR_WORDS = ["verde", "vermelho", "azul", "amarelo", "laranja", "marrom", "cin
                "dourado", "bege", "creme"]
 
 
-def semantic_warnings(description: str, spec: dict[str, Any], provided: list[str]) -> list[str]:
-    """Avisos informativos (não bloqueiam): cobertura, pedidos não suportados e cores citadas."""
+def _without_name(obj: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in obj.items() if k != "name"}
+
+
+def semantic_warnings(description: str, spec: dict[str, Any], provided: list[str],
+                      ai_json: Optional[dict[str, Any]] = None) -> list[str]:
+    """Avisos informativos (não bloqueiam): cópia do exemplo, cobertura, pedidos não suportados e cores citadas."""
+    from .prompt import EXAMPLES
+
     warnings = []
+    if ai_json is not None:
+        for text, answer in EXAMPLES:
+            if _without_name(ai_json) == _without_name(answer) and _norm(text) != _norm(description):
+                warnings.append("A IA repetiu um exemplo do prompt em vez de interpretar a descrição; "
+                                "reformule a descrição ou use outra seed/criatividade.")
     text = _norm(description)
     total = len(all_leaf_paths())
     if len(provided) < 0.25 * total:
@@ -128,7 +140,7 @@ def interpret(description: str, llm: TextGenerator, *, seed: int = 0, temperatur
                 attempts.append(record)
                 result = AIResult(ok=True, spec=spec, ai_json=obj, provided_fields=provided, attempts=attempts,
                                   seconds=time.perf_counter() - t_start, model=llm.describe(), decoding=decoding)
-                result.warnings = semantic_warnings(description, spec, provided)
+                result.warnings = semantic_warnings(description, spec, provided, obj)
                 return result
         record["errors"] = last_errors
         attempts.append(record)

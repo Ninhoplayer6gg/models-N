@@ -267,6 +267,16 @@ def atlas_debug(bbmodel: dict, texture: np.ndarray, zoom: int = 4, labels: bool 
             d.rectangle((x0, y0, x1, y1), outline=(20, 20, 20, 255), width=1)
             if labels:
                 d.text((x0 + 2, y1 - zoom * 3 - 2), el["name"], fill=(255, 255, 0, 255), font=font, stroke_width=1, stroke_fill=(0, 0, 0, 255))
+    if labels:
+        legend = ("Faces: N = norte/frente  S = sul/trás  L = leste/direita  O = oeste/esquerda  "
+                  "C = cima  B = baixo  ·  cada cubo usa box UV")
+        lf = _font(max(11, zoom * 3))
+        bar = Image.new("RGBA", (img.width, lf.size + 12), (40, 44, 52, 255))
+        ImageDraw.Draw(bar).text((6, 5), legend, fill=(240, 240, 240, 255), font=lf)
+        out = Image.new("RGBA", (img.width, img.height + bar.height), (255, 255, 255, 255))
+        out.paste(img, (0, 0))
+        out.paste(bar, (0, img.height))
+        img = out
     return img
 
 
