@@ -93,13 +93,15 @@ def test_shape_packing_uses_empty_corners():
     assert grid.max() == 1
 
 
-def test_big_head_fits_128():
-    """Spec do teste real (cabeça 1.4x) subia para 256; agora cabe em 128 sem sobreposição."""
+def test_atlas_size_default_and_big_head():
+    """O T-rex padrão cabe em 128x128; com a cabeça 1.4x (mais área de pele) sobe para 256, sem sobreposição."""
     from ninho_studio.pipeline import generate
     from ninho_studio.spec import BuildSettings, default_spec
 
+    res = generate(default_spec(), BuildSettings(seed=42, texture_size=128), mode="procedural")
+    assert res.atlas.size == 128 and not res.atlas.upgraded
     spec = default_spec()
     spec["proportions"]["head_size"] = 1.4
     res = generate(spec, BuildSettings(seed=42, texture_size=128), mode="procedural")
-    assert res.atlas.size == 128 and not res.atlas.upgraded
+    assert res.atlas.size == 256 and res.atlas.upgraded
     assert res.validation.ok and not res.validation.warnings

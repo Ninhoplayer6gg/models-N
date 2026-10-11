@@ -29,7 +29,7 @@ from .builders import build_model
 from .geo import GEO_FORMAT_VERSION, GECKOLIB_PATHS, bbmodel_to_geo, geo_dumps, validate_geo
 from .model import Model
 from .spec import SPEC_VERSION, BuildSettings, SpecValidationError, normalize_spec, validate_spec
-from .texture import paint_texture
+from .texture import CUTOUT_MATERIALS, paint_texture
 from .validate import ValidationReport, validate_bbmodel
 
 MODES = ("ia", "procedural")
@@ -96,7 +96,8 @@ def generate(
     png = png_bytes(texture)
     name = base_name or sanitize_identifier(spec.get("name") or "trex")
     bb = model_to_bbmodel(model, png, f"{name}.png", identifier=name)
-    report = validate_bbmodel(bb, element_budget=settings.element_budget, texture=texture)
+    cutout = {c.uuid for c in model.iter_cubes() if c.material in CUTOUT_MATERIALS}
+    report = validate_bbmodel(bb, element_budget=settings.element_budget, texture=texture, cutout=cutout)
     geo = bbmodel_to_geo(bb)
     geo_text = geo_dumps(geo)
     report.checks.append("geo.json do GeckoLib")

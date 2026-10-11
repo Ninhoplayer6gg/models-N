@@ -10,6 +10,12 @@ pagas. Primeira versão: **T-rex ajustável**.
 
 ![Exemplo: T-rex verde](examples/trex-verde/trex_verde_vistas.png)
 
+**v0.3 — T-rex mais bonito:** nova forma (cabeça com sobrancelhas e bochechas, dentes em
+zigue-zague com gengiva, língua, pés com três dedos e garras, corpo e cauda mais robustos) e
+textura com sombra de contato calculada pela geometria. Antes × agora, no Blockbench 5.2.2:
+
+![Antes e depois](docs/img/antes_depois_v03.png)
+
 ## O que tem aqui
 
 | Entrega | Onde |
@@ -51,14 +57,18 @@ Detalhes da IA (licença Apache-2.0, compatibilidade, CPU/GPU): [`docs/IA-MODELO
 * Ossos com pivô em cada articulação, prontos para animação:
   `root → body → {torso → {neck → head → jaw, arm_* → forearm_*}, tail_1 → … → tail_n,
   leg_* → shin_* → [metatarsus_*] → foot_*}`.
-* Cabeça com crânio e focinho, **mandíbula separada** com dobradiça, dentes, olhos com
-  pupila e sobrancelha, narinas; pescoço erguido; tronco, peito e quadril; **braços pequenos
-  com duas garras por mão**; pernas fortes com **pés apoiados no chão**; **cauda em 3–5
-  segmentos que afinam**.
-* Níveis de detalhe (baixo 25 cubos, médio 32, alto 40) e **orçamento de elementos**
-  configurável; detalhes extras (garras dos pés, crista nasal, espinhos, crista de penas,
-  chifres) só entram se couberem.
+* Cabeça mais larga atrás (bochechas), **sobrancelhas salientes**, topo arredondado e ponte
+  nasal; **mandíbula separada** com dobradiça e língua; dentes de cima por fora da mandíbula
+  (mordida sobreposta); olhos com pupila em fenda e brilho; narinas; pescoço com garganta;
+  dorso e quadril arredondados, peito; **braços pequenos com duas garras por mão**; coxa
+  robusta e panturrilha; **pés com três dedos separados** (abertos em leque) e garras, bem
+  apoiados no chão; **cauda em 4–6 segmentos que afinam**.
+* Níveis de detalhe (baixo 30 cubos, médio 55, alto 64) e **orçamento de elementos**
+  configurável (padrão 96); detalhes extras (sobrancelhas, garras dos pés, crista nasal,
+  esporão, plaquinhas no dorso, espinhos, crista de penas, chifres) só entram se couberem.
 * Tudo em pixels inteiros (box UV), posições na grade de 0,5 px, ângulos em passos de 0,5°.
+  Faces de cubos diferentes que ficariam no mesmo plano (e piscariam no jogo) recebem um
+  `inflate` de fração de pixel; o validador confere que não sobrou nenhuma.
 
 ![Variações](docs/img/variacoes.png)
 
@@ -67,9 +77,13 @@ Detalhes da IA (licença Apache-2.0, compatibilidade, CPU/GPU): [`docs/IA-MODELO
 Atlas box UV organizado por região (cabeça, corpo, cauda, pernas, braços), 128×128 ou
 256×256 (sobe para 256 sozinho se não couber, com aviso). Cada texel é ligado ao ponto 3D
 que cobre, então as regras pintam regiões intencionais: dorso escuro → laterais → **ventre
-claro** com escamas ventrais, linha dos lábios, céu da boca e língua, olhos, dentes, garras,
-unhas e dedos; padrões **listras, manchas, faixas, mosqueado** contínuos entre peças; pele de
-**escamas, rugosa, lisa ou penas**. Paleta em rampas de tons, sem filtro: pixels nítidos.
+claro** com escamas ventrais e dobras na garganta, linha dos lábios, céu da boca e língua,
+olhos, garras com degradê, anéis de escamas nos dedos; padrões **listras, manchas, faixas,
+mosqueado** contínuos entre peças (listras com borda irregular, como pintadas à mão); pele de
+**escamas, rugosa, lisa ou penas**. **Sombra de contato** calculada lançando raios contra os
+próprios cubos (escurece embaixo da mandíbula, entre as pernas e o corpo, entre os dedos) e luz
+na borda de cima de cada peça. Os **dentes** são recortados com transparência (zigue-zague com
+gengiva), como o GeckoLib desenha. Paleta em rampas de tons, sem filtro: pixels nítidos.
 
 ## Exportação
 
@@ -85,8 +99,9 @@ unhas e dedos; padrões **listras, manchas, faixas, mosqueado** contínuos entre
 ## Qualidade e testes
 
 Validação automática de dimensões, UUIDs, referências, hierarquia, UV fora da textura,
-consistência do box UV, sobreposição no atlas, faces sem pintura, pivôs, chão e `.geo.json`
-do GeckoLib. 143 testes automáticos; os exemplos e 9 variantes foram **abertos no Blockbench 5.2.2** sem
+consistência do box UV, sobreposição no atlas, faces sem pintura, pivôs, chão, faces no mesmo
+plano (que piscariam no jogo) e `.geo.json`
+do GeckoLib. 158 testes automáticos; os exemplos e 9 variantes foram **abertos no Blockbench 5.2.2** sem
 avisos nem erros do validador dele, e o `.geo.json` de 12 casos foi conferido no Blockbench e
 nos leitores do GeckoLib 4 e 5 compilados do código-fonte. A IA real (Qwen2.5-Coder-1.5B, GPU T4) já rodou no Colab
 num teste do usuário: JSON válido na 1ª tentativa em 11 s; as falhas observadas e as correções

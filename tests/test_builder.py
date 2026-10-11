@@ -14,7 +14,7 @@ REQUIRED_BONES = {
 
 def build(**changes):
     spec = default_spec()
-    settings = BuildSettings(seed=changes.pop("seed", 42), element_budget=changes.pop("budget", 64))
+    settings = BuildSettings(seed=changes.pop("seed", 42), element_budget=changes.pop("budget", 96))
     for key, value in changes.items():
         if key in spec["proportions"]:
             spec["proportions"][key] = value
@@ -32,7 +32,7 @@ def test_hierarchy_and_names():
     assert len({b.name for b in model.bones.values()}) == len(model.bones)
 
 
-@pytest.mark.parametrize("detail, segments", [("low", 3), ("medium", 4), ("high", 5)])
+@pytest.mark.parametrize("detail, segments", [("low", 4), ("medium", 5), ("high", 6)])
 def test_tail_segments_taper(detail, segments):
     model, _ = build(detail_level=detail)
     tails = [model.bones[f"tail_{i + 1}"].cubes[0] for i in range(segments)]
@@ -139,3 +139,45 @@ def test_world_matrix_matches_manual_chain():
         b = model.bones[name]
         m = m @ pivot_matrix(b.pivot, b.rotation)
     assert np.allclose(m, model.world_matrix("head"))
+
+
+def test_feet_have_three_separate_toes_with_claws():
+    model, _ = build()
+    for side in ("right", "left"):
+        cubes = model.bones[f"foot_{side}"].cubes
+        toes = [c for c in cubes if c.part == "toe"]
+        claws = [c for c in cubes if c.part == "toe_claw"]
+        assert len(toes) == 3 and len(claws) == 3
+        yaws = sorted(c.rotation[1] for c in toes)
+        assert yaws[0] == -yaws[2] < 0 and yaws[1] == 0  # dedos dos lados abertos em leque, simétricos
+        for claw in claws:  # cada garra gira junto com o seu dedo
+            assert any(claw.origin == t.origin and claw.rotation == t.rotation for t in toes)
+    low, _ = build(detail_level="low")
+    assert not [c for c in low.iter_cubes() if c.part == "toe"]  # detalhe baixo: pé inteiriço
+
+
+def test_head_details_overbite_brows_cheeks_tongue():
+    model, _ = build()
+    head = model.bones["head"]
+    skull = model.find_cube("head", "skull")
+    teeth_up = model.find_cube("head", "teeth_upper")
+    jaw_front = model.find_cube("jaw", "jaw_front")
+    # dentes de cima por fora da mandíbula: aparecem mesmo de boca fechada
+    assert teeth_up.size[0] > jaw_front.size[0]
+    assert teeth_up.frm[0] < jaw_front.frm[0] and jaw_front.to[0] < teeth_up.to[0]
+    brows = [c for c in head.cubes if c.part == "brow"]
+    assert len(brows) == 2 and all(c.to[1] == skull.to[1] + 1 for c in brows)  # saliente acima do crânio
+    assert len([c for c in head.cubes if c.part == "cheek"]) == 2  # cabeça mais larga atrás
+    tongue = model.find_cube("jaw", "tongue")
+    assert jaw_front.frm[0] < tongue.frm[0] and tongue.to[0] < jaw_front.to[0]
+
+
+def test_high_detail_with_all_features_fits_default_budget():
+    feats = {**default_spec()["features"], "back_spikes": True, "feather_crest": True, "brow_horns": True}
+    spec = default_spec()
+    spec["detail_level"] = "high"
+    spec["features"] = feats
+    model, notes = build_model(spec, BuildSettings(seed=4))
+    assert not notes
+    assert model.cube_count <= BuildSettings().element_budget
+    assert {"spike", "crest", "brow", "toe", "toe_claw", "dewclaw", "calf"} <= {c.part for c in model.iter_cubes()}

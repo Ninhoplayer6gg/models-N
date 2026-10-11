@@ -30,7 +30,7 @@ DESCRIPTION = "Um T-rex verde, com listras escuras nas costas, barriga creme, ol
 def example() -> None:
     spec = default_spec()
     spec["name"] = "T-rex verde"
-    result = generate(spec, BuildSettings(seed=42, texture_size=128, element_budget=64), mode="procedural",
+    result = generate(spec, BuildSettings(seed=42, texture_size=128, element_budget=96), mode="procedural",
                       description=DESCRIPTION, base_name="trex_verde")
     out = os.path.join(ROOT, "examples", "trex-verde")
     paths = save_outputs(result, out)
@@ -83,7 +83,7 @@ def gallery() -> None:
     tiles = []
     for label, adj in VARIANTS:
         spec, _notes = apply_adjustments(default_spec(), adj)
-        res = generate(spec, BuildSettings(seed=7, element_budget=64), mode="procedural")
+        res = generate(spec, BuildSettings(seed=7, element_budget=96), mode="procedural")
         assert res.validation.ok, res.validation.summary_pt()
         mesh = build_mesh(res.bbmodel)
         img = Image.fromarray(render(mesh, res.texture, View("p", (0.85, 0.4, -0.85), ortho=False, fov=26), size=420))

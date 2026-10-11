@@ -56,7 +56,7 @@ def code(cell_id: str, text: str) -> dict:
 
 
 INTRO = """
-# 🦖 Ninho Model Studio — protótipo v0.2
+# 🦖 Ninho Model Studio — protótipo v0.3
 
 Gera **modelos 3D estilo Minecraft** como projeto editável do **Blockbench** (`.bbmodel`) a partir de uma descrição.
 Uma **IA de pesos abertos**, rodando aqui mesmo no Colab, transforma o pedido em dados estruturados; um
@@ -162,7 +162,7 @@ crista_penas = "automático" #@param ["automático", "sim", "não"]
 #@markdown ---
 #@markdown **Técnico** — textura 128 ou 256 px, limite de cubos e seed (mesma seed = mesmo resultado).
 textura = "128" #@param ["128", "256"]
-orcamento_elementos = 64 #@param {type:"slider", min:16, max:128, step:4}
+orcamento_elementos = 96 #@param {type:"slider", min:16, max:160, step:4}
 seed = 42 #@param {type:"integer"}
 #@markdown **IA** (só no modo IA) — criatividade 0 = sempre a mesma resposta para a mesma descrição.
 criatividade_ia = 0.0 #@param {type:"slider", min:0, max:1, step:0.1}

@@ -10,7 +10,7 @@ FORM = dict(
     cor_secundaria="auto", cor_barriga="auto", cor_padrao="auto", cor_olhos="auto", padrao="automático",
     intensidade_padrao="automática", pele="automática", detalhe="automático", chifres="automático",
     espinhos="automático", dentes="automático", cicatrizes="automático", crista_penas="automático", textura="128",
-    orcamento_elementos=64, seed=42, criatividade_ia=0.0, tentativas_ia=3, refazer_interpretacao=False,
+    orcamento_elementos=96, seed=42, criatividade_ia=0.0, tentativas_ia=3, refazer_interpretacao=False,
 )
 
 

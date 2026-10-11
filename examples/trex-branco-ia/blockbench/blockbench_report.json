@@ -6,19 +6,19 @@
   "format_name": "Bedrock Entity",
   "box_uv": true,
   "texture_size": [
-    128,
-    128
+    256,
+    256
   ],
   "model_identifier": "tyranos_rex",
-  "cubes": 32,
-  "groups": 22,
+  "cubes": 55,
+  "groups": 23,
   "root_nodes": 1,
   "texture": {
     "name": "tyranos_rex.png",
-    "width": 128,
-    "height": 128,
-    "uv_width": 128,
-    "uv_height": 128,
+    "width": 256,
+    "height": 256,
+    "uv_width": 256,
+    "uv_height": 256,
     "loaded": true,
     "error": 0
   },
@@ -27,14 +27,14 @@
   "message_boxes": [],
   "world_box": {
     "min": [
-      -9.067051772096175,
-      -0.14576215749537846,
-      -44.712415034665284
+      -10.961328027613568,
+      -0.2457621589854946,
+      -45.874999614044015
     ],
     "max": [
-      9.067051772096175,
-      44.00808075731197,
-      41.99714277952214
+      10.961328027613568,
+      44.541291645043884,
+      38.017207123559835
     ]
   },
   "group_list": [
@@ -66,7 +66,7 @@
         0
       ],
       "parent": "root",
-      "children": 5
+      "children": 6
     },
     {
       "name": "torso",
@@ -81,14 +81,14 @@
         0
       ],
       "parent": "body",
-      "children": 5
+      "children": 6
     },
     {
       "name": "neck",
       "origin": [
         0,
         29.5,
-        -15.5
+        -14.5
       ],
       "rotation": [
         37.5,
@@ -96,14 +96,14 @@
         0
       ],
       "parent": "torso",
-      "children": 2
+      "children": 3
     },
     {
       "name": "head",
       "origin": [
         0,
         30,
-        -23
+        -21
       ],
       "rotation": [
         -31,
@@ -111,14 +111,14 @@
         0
       ],
       "parent": "neck",
-      "children": 6
+      "children": 10
     },
     {
       "name": "jaw",
       "origin": [
         0,
         27.5,
-        -22
+        -20
       ],
       "rotation": [
         -10.5,
@@ -126,14 +126,14 @@
         0
       ],
       "parent": "head",
-      "children": 3
+      "children": 4
     },
     {
       "name": "arm_right",
       "origin": [
-        5.5,
-        22.5,
-        -14
+        6,
+        22,
+        -13
       ],
       "rotation": [
         26.5,
@@ -146,9 +146,9 @@
     {
       "name": "forearm_right",
       "origin": [
-        6.5,
-        19,
-        -14
+        7,
+        18.5,
+        -13
       ],
       "rotation": [
         -57,
@@ -161,9 +161,9 @@
     {
       "name": "arm_left",
       "origin": [
-        -5.5,
-        22.5,
-        -14
+        -6,
+        22,
+        -13
       ],
       "rotation": [
         26.5,
@@ -176,9 +176,9 @@
     {
       "name": "forearm_left",
       "origin": [
-        -6.5,
-        19,
-        -14
+        -7,
+        18.5,
+        -13
       ],
       "rotation": [
         -57,
@@ -191,7 +191,7 @@
     {
       "name": "leg_right",
       "origin": [
-        6,
+        7,
         24.5,
         0
       ],
@@ -206,7 +206,7 @@
     {
       "name": "shin_right",
       "origin": [
-        6,
+        7,
         15,
         0.5
       ],
@@ -216,12 +216,12 @@
         0
       ],
       "parent": "leg_right",
-      "children": 2
+      "children": 3
     },
     {
       "name": "metatarsus_right",
       "origin": [
-        6,
+        7,
         5,
         0
       ],
@@ -236,7 +236,7 @@
     {
       "name": "foot_right",
       "origin": [
-        6,
+        7,
         -1,
         0
       ],
@@ -246,12 +246,12 @@
         0
       ],
       "parent": "metatarsus_right",
-      "children": 1
+      "children": 7
     },
     {
       "name": "leg_left",
       "origin": [
-        -6,
+        -7,
         24.5,
         0
       ],
@@ -266,7 +266,7 @@
     {
       "name": "shin_left",
       "origin": [
-        -6,
+        -7,
         15,
         0.5
       ],
@@ -276,12 +276,12 @@
         0
       ],
       "parent": "leg_left",
-      "children": 2
+      "children": 3
     },
     {
       "name": "metatarsus_left",
       "origin": [
-        -6,
+        -7,
         5,
         0
       ],
@@ -296,7 +296,7 @@
     {
       "name": "foot_left",
       "origin": [
-        -6,
+        -7,
         -1,
         0
       ],
@@ -306,7 +306,7 @@
         0
       ],
       "parent": "metatarsus_left",
-      "children": 1
+      "children": 7
     },
     {
       "name": "tail_1",
@@ -328,10 +328,10 @@
       "origin": [
         0,
         27,
-        15
+        11
       ],
       "rotation": [
-        -3,
+        -2,
         0,
         0
       ],
@@ -343,7 +343,7 @@
       "origin": [
         0,
         27,
-        25
+        19
       ],
       "rotation": [
         -3,
@@ -358,14 +358,29 @@
       "origin": [
         0,
         27,
-        34
+        26
       ],
       "rotation": [
-        -3,
+        -2.5,
         0,
         0
       ],
       "parent": "tail_3",
+      "children": 2
+    },
+    {
+      "name": "tail_5",
+      "origin": [
+        0,
+        27,
+        32
+      ],
+      "rotation": [
+        -2.5,
+        0,
+        0
+      ],
+      "parent": "tail_4",
       "children": 1
     }
   ],
@@ -382,18 +397,18 @@
   "bedrock_export": {
     "format_version": "1.12.0",
     "identifier": "geometry.tyranos_rex",
-    "texture_width": 128,
-    "texture_height": 128,
-    "bones": 22,
-    "cubes": 32
+    "texture_width": 256,
+    "texture_height": 256,
+    "bones": 23,
+    "cubes": 55
   },
   "visible_box_file": [
-    7,
+    6,
     4.5,
     1.75
   ],
   "visible_box_blockbench": [
-    7,
+    6,
     4.5,
     1.75
   ]

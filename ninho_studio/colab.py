@@ -281,7 +281,7 @@ def coletar_parametros(**f: Any) -> dict[str, Any]:
     settings = BuildSettings(
         seed=int(f.get("seed", 42)),
         texture_size=texture,
-        element_budget=int(f.get("orcamento_elementos", 64)),
+        element_budget=int(f.get("orcamento_elementos", 96)),
     )
     problems += settings.validate()
     params = {

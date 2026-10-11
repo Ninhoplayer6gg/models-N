@@ -11,9 +11,10 @@
 
 **Por que `bedrock`:** é um formato de entidade do Minecraft com ossos (grupos) e pivôs,
 box UV, uma textura por modelo e rotação em qualquer ângulo — e o próprio Blockbench
-exporta dele para `.geo.json` (Bedrock), base também usada pelo GeckoLib. Toda rotação do
-modelo fica nos **ossos**; nenhum cubo é girado, o que também facilita converter para
-formatos Java (que não giram cubos individuais).
+exporta dele para `.geo.json` (Bedrock), base também usada pelo GeckoLib. A postura fica nas
+rotações dos **ossos**; o único cubo girado é cada dedo do pé (aberto em leque em torno da
+própria base, ±12,5°), o que o Bedrock e o GeckoLib aceitam. Faces de cubos diferentes que
+ficariam no mesmo plano recebem `inflate` de 0,05 px (às vezes 0,1) para não piscarem.
 
 A documentação oficial ([The .bbmodel format](https://www.blockbench.net/wiki/docs/bbmodel/),
 fonte em `JannisX11/blockbench.net/content/docs/bbmodel.md`) diz que **não existe uma

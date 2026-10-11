@@ -1,19 +1,19 @@
 {
  "blockbench": "5.2.2 (build web oficial compilada do código-fonte, commit 7c92e27, aberta em Chromium sem tela)",
- "ninho_model_studio": "0.1.1",
+ "ninho_model_studio": "0.3.0",
  "data": "2026-10-11",
  "variantes": [
   {
    "variante": "Padrão (verde, listras)",
-   "cubos": 32,
-   "grupos": 22,
+   "cubos": 55,
+   "grupos": 23,
    "formato": "bedrock",
    "textura": [
     128,
     128
    ],
    "textura_carregada": true,
-   "estrategia_atlas": "agrupado por região",
+   "estrategia_atlas": "agrupado por região, compacto",
    "avisos_validador_blockbench": [],
    "erros_validador_blockbench": [],
    "mensagens_de_erro": [],
@@ -24,20 +24,20 @@
     "identifier": "geometry.galeria_0",
     "texture_width": 128,
     "texture_height": 128,
-    "bones": 22,
-    "cubes": 32
+    "bones": 23,
+    "cubes": 55
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9855,
-    "frente": 0.9886,
-    "topo": 0.9874
+    "lado_direito": 0.9872,
+    "frente": 0.9944,
+    "topo": 0.9756
    }
   },
   {
    "variante": "Filhote marrom com manchas",
-   "cubos": 25,
-   "grupos": 19,
+   "cubos": 30,
+   "grupos": 22,
    "formato": "bedrock",
    "textura": [
     128,
@@ -55,27 +55,27 @@
     "identifier": "geometry.galeria_1",
     "texture_width": 128,
     "texture_height": 128,
-    "bones": 19,
-    "cubes": 25
+    "bones": 22,
+    "cubes": 30
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9924,
-    "frente": 0.9851,
-    "topo": 0.987
+    "lado_direito": 0.9866,
+    "frente": 0.9783,
+    "topo": 0.9781
    }
   },
   {
    "variante": "Cinza blindado com espinhos",
-   "cubos": 46,
-   "grupos": 23,
+   "cubos": 65,
+   "grupos": 24,
    "formato": "bedrock",
    "textura": [
-    128,
-    128
+    256,
+    256
    ],
    "textura_carregada": true,
-   "estrategia_atlas": "agrupado por região, compacto",
+   "estrategia_atlas": "agrupado por região",
    "avisos_validador_blockbench": [],
    "erros_validador_blockbench": [],
    "mensagens_de_erro": [],
@@ -84,22 +84,22 @@
    "exportacao_bedrock": {
     "format_version": "1.12.0",
     "identifier": "geometry.galeria_2",
-    "texture_width": 128,
-    "texture_height": 128,
-    "bones": 23,
-    "cubes": 46
+    "texture_width": 256,
+    "texture_height": 256,
+    "bones": 24,
+    "cubes": 65
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9793,
-    "frente": 0.9985,
-    "topo": 0.9648
+    "lado_direito": 0.9824,
+    "frente": 0.9862,
+    "topo": 0.9887
    }
   },
   {
    "variante": "Emplumado azul com crista",
-   "cubos": 42,
-   "grupos": 23,
+   "cubos": 66,
+   "grupos": 24,
    "formato": "bedrock",
    "textura": [
     128,
@@ -117,20 +117,20 @@
     "identifier": "geometry.galeria_3",
     "texture_width": 128,
     "texture_height": 128,
-    "bones": 23,
-    "cubes": 42
+    "bones": 24,
+    "cubes": 66
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9647,
-    "frente": 0.9951,
-    "topo": 0.9878
+    "lado_direito": 0.9832,
+    "frente": 0.982,
+    "topo": 0.9771
    }
   },
   {
    "variante": "detalhe low",
-   "cubos": 25,
-   "grupos": 19,
+   "cubos": 30,
+   "grupos": 22,
    "formato": "bedrock",
    "textura": [
     128,
@@ -148,27 +148,27 @@
     "identifier": "geometry.detalhe_low",
     "texture_width": 128,
     "texture_height": 128,
-    "bones": 19,
-    "cubes": 25
+    "bones": 22,
+    "cubes": 30
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9824,
-    "frente": 0.9981,
-    "topo": 0.9965
+    "lado_direito": 0.9645,
+    "frente": 0.9948,
+    "topo": 0.9905
    }
   },
   {
    "variante": "detalhe medium",
-   "cubos": 32,
-   "grupos": 22,
+   "cubos": 55,
+   "grupos": 23,
    "formato": "bedrock",
    "textura": [
     128,
     128
    ],
    "textura_carregada": true,
-   "estrategia_atlas": "agrupado por região",
+   "estrategia_atlas": "agrupado por região, compacto",
    "avisos_validador_blockbench": [],
    "erros_validador_blockbench": [],
    "mensagens_de_erro": [],
@@ -179,27 +179,27 @@
     "identifier": "geometry.detalhe_medium",
     "texture_width": 128,
     "texture_height": 128,
-    "bones": 22,
-    "cubes": 32
+    "bones": 23,
+    "cubes": 55
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9643,
-    "frente": 0.9957,
-    "topo": 0.9884
+    "lado_direito": 0.9879,
+    "frente": 0.9963,
+    "topo": 0.9897
    }
   },
   {
    "variante": "detalhe high",
-   "cubos": 40,
-   "grupos": 23,
+   "cubos": 64,
+   "grupos": 24,
    "formato": "bedrock",
    "textura": [
     128,
     128
    ],
    "textura_carregada": true,
-   "estrategia_atlas": "agrupado por região",
+   "estrategia_atlas": "agrupado por região, compacto",
    "avisos_validador_blockbench": [],
    "erros_validador_blockbench": [],
    "mensagens_de_erro": [],
@@ -210,20 +210,20 @@
     "identifier": "geometry.detalhe_high",
     "texture_width": 128,
     "texture_height": 128,
-    "bones": 23,
-    "cubes": 40
+    "bones": 24,
+    "cubes": 64
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9665,
-    "frente": 0.9957,
-    "topo": 0.9912
+    "lado_direito": 0.9881,
+    "frente": 0.9958,
+    "topo": 0.9885
    }
   },
   {
    "variante": "escala 1.4, textura 256",
-   "cubos": 32,
-   "grupos": 22,
+   "cubos": 55,
+   "grupos": 23,
    "formato": "bedrock",
    "textura": [
     256,
@@ -241,27 +241,27 @@
     "identifier": "geometry.textura_256",
     "texture_width": 256,
     "texture_height": 256,
-    "bones": 22,
-    "cubes": 32
+    "bones": 23,
+    "cubes": 55
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9835,
-    "frente": 0.995,
-    "topo": 0.9867
+    "lado_direito": 0.9845,
+    "frente": 0.9893,
+    "topo": 0.9819
    }
   },
   {
    "variante": "branco, cabeça 1.4 (caso do teste real)",
-   "cubos": 32,
-   "grupos": 22,
+   "cubos": 55,
+   "grupos": 23,
    "formato": "bedrock",
    "textura": [
-    128,
-    128
+    256,
+    256
    ],
    "textura_carregada": true,
-   "estrategia_atlas": "agrupado por região, compacto",
+   "estrategia_atlas": "agrupado por região",
    "avisos_validador_blockbench": [],
    "erros_validador_blockbench": [],
    "mensagens_de_erro": [],
@@ -270,16 +270,16 @@
    "exportacao_bedrock": {
     "format_version": "1.12.0",
     "identifier": "geometry.branco_cabeca_grande",
-    "texture_width": 128,
-    "texture_height": 128,
-    "bones": 22,
-    "cubes": 32
+    "texture_width": 256,
+    "texture_height": 256,
+    "bones": 23,
+    "cubes": 55
    },
    "visible_box_igual": true,
    "iou_silhuetas": {
-    "lado_direito": 0.9729,
-    "frente": 1.0,
-    "topo": 0.9687
+    "lado_direito": 0.9796,
+    "frente": 0.9984,
+    "topo": 0.9875
    }
   }
  ]

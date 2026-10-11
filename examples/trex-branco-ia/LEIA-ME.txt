@@ -5,7 +5,7 @@ Arquivos deste pacote
 ---------------------
 tyranos_rex.bbmodel   Projeto EDITÁVEL do Blockbench (formato bedrock, versão do arquivo 5.0),
                  com cubos, grupos (ossos), pivôs, UV e a textura embutida.
-tyranos_rex.png       Textura (128x128) gerada de forma PROCEDURAL (regras + seed, sem IA).
+tyranos_rex.png       Textura (256x256) gerada de forma PROCEDURAL (regras + seed, sem IA).
 tyranos_rex.geo.json  Modelo para o Minecraft Java com o mod GeckoLib (geometria Bedrock 1.12.0).
 tyranos_rex.json      Configuração: modo (ia), descrição, parâmetros, seed, versão e validação.
 tyranos_rex_vistas.png      Vistas: perspectiva, lado, frente, topo, traseira e ventre.

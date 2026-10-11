@@ -2,7 +2,33 @@
 
 Este relatório diz **exatamente** o que foi testado, como, e o que **não** pôde ser testado.
 
+## Atualização v0.3.0 — T-rex mais bonito
+
+Pedido do usuário: "modelos mais bonitos, para Minecraft Java". Mudou a forma (cabeça com
+sobrancelhas, bochechas, topo arredondado e ponte nasal; dentes de cima por fora da mandíbula,
+com gengiva; língua; garganta; dorso e quadril arredondados; coxa robusta e panturrilha; pés
+com três dedos separados e garras; corpo, pescoço e cauda mais robustos) e a textura (sombra de
+contato calculada lançando raios contra os próprios cubos, luz na borda de cima das peças, olho
+com pupila em fenda e brilho, dentes recortados com transparência, listras mais fortes com
+borda irregular). Imagem antes × depois no Blockbench: `docs/img/antes_depois_v03.png`.
+
+| Verificação | Resultado |
+|---|---|
+| Testes automáticos | **158 passaram** com torch + transformers; **154 passaram e 2 foram pulados** sem torch |
+| Exemplos no Blockbench 5.2.2 (`examples/*/blockbench/`) | 55 cubos, 23 ossos; **0 avisos e 0 erros** do validador; ida e volta idêntica; exportação Bedrock correta; `visible_box` igual ao do Blockbench (`[6, 4.5, 1.75]`); silhuetas IoU 0,985/0,997/0,989 (verde) e 0,980/0,998/0,988 (branco) |
+| Pose de teste dentro do Blockbench | cada parte gira no pivô certo, dentes acompanham a mandíbula e dedos acompanham o pé; IoU 0,978 com a prévia do Ninho |
+| 9 variantes no Blockbench | 0 avisos/erros, ida e volta idêntica, IoU entre 0,96 e 1,00 |
+| `.geo.json` (12 casos) | idêntico byte a byte à exportação do Blockbench; reaberto sozinho reproduz o projeto; capturas diferem em no máximo 0,015% dos pixels |
+| Leitores do GeckoLib 4.9.3 e 5.5.7 | os 12 carregam sem erro nem aviso; 15.360 cantos de face com posição e UV iguais aos do Blockbench em cada versão; 5 defeitos plantados acusados nas duas |
+| Faces no mesmo plano (piscam no jogo) | nova conferência no validador: **zero** nos exemplos, nas variantes e nos testes (inclusive proporções extremas e boca fechada) |
+
+**Avaliação visual:** feita por mim nas capturas do Blockbench e nas prévias, de vários ângulos,
+inclusive closes da cabeça. "Mais bonito" é subjetivo: o usuário ainda não viu esta versão.
+
 ## Atualização v0.2.0 — modelo para o Minecraft Java (GeckoLib)
+
+*Os números desta seção são da v0.2.0 (T-rex antigo); os atuais estão na seção v0.3.0 e nos
+arquivos `docs/verificacao-*.json`.*
 
 Cada geração agora traz `<nome>.geo.json` (formato Bedrock `1.12.0`, que o GeckoLib lê),
 escrito por `ninho_studio/geo.py`. Guia: [MINECRAFT-JAVA.md](MINECRAFT-JAVA.md).
@@ -19,8 +45,8 @@ escrito por `ninho_studio/geo.py`. Guia: [MINECRAFT-JAVA.md](MINECRAFT-JAVA.md).
 viradas para o mesmo lado. Uma busca na geometria dos 12 casos encontrou isso no cotovelo
 (braço/antebraço) em todos eles. Em alguns casos apareceu também nos dentes (detalhe baixo), entre
 o pescoço e a mandíbula, nas sobrancelhas e nas garras dos pés. A ordem de desenho decide qual face
-aparece, então isso pode "piscar" no jogo. É um defeito do modelo, não da exportação; a correção
-fica para a etapa das animações.
+aparece, então isso pode "piscar" no jogo. É um defeito do modelo, não da exportação.
+**Corrigido na v0.3.0** (ver acima).
 
 **Não testado:** o T-rex dentro do Minecraft (precisa do mod `.jar`, ainda não feito) e as
 animações (ainda não feitas). Os repositórios do Fabric, NeoForge, Forge e do Minecraft estão
@@ -74,8 +100,8 @@ Antes/depois em `examples/trex-branco-ia/antes_depois.png`.
 
 | Ambiente | Resultado |
 |---|---|
-| Python do sistema (sem torch) | **139 passaram, 2 pulados** (os 2 módulos que dependem de torch/transformers) |
-| Ambiente com torch + transformers | **143 passaram** |
+| Python do sistema (sem torch) | **154 passaram, 2 pulados** (os 2 módulos que dependem de torch/transformers) |
+| Ambiente com torch + transformers | **158 passaram** |
 
 O que cobrem:
 
@@ -106,6 +132,9 @@ O que cobrem:
   JSON do Blockbench (números, cubos em uma linha, escapes); a conferência do GeckoLib acusa
   ossos repetidos, pai inexistente, ciclo, tamanho não inteiro, UV fora da textura e versão
   errada; `.geo.json` dentro do `.zip` com hash no `.json`.
+* `test_coplanar.py` — área de sobreposição; só faces coplanares viradas para o mesmo lado
+  contam; o construtor não deixa nenhuma (5 combinações, inclusive extremas e boca fechada); o
+  validador avisa quando um cubo duplicado cria faces coincidentes.
 * `test_mesh_render.py` — malha lida do `.bbmodel` bate com o modelo; vistas renderizam; o
   olho aparece na vista lateral; folhas de imagens e visualizador HTML.
 * `test_ai.py` — extração de JSON (texto em volta, cercas de código, `<think>`, chaves dentro
@@ -133,23 +162,23 @@ O que cobrem:
   localmente com `node build.js --target=web`, servido em `127.0.0.1` e aberto num Chromium
   sem tela (Playwright 1.56.1, WebGL por SwiftShader). Ferramenta: `tools/blockbench_check.mjs`.
 * **Exemplo T-rex verde** (`examples/trex-verde/blockbench/`):
-  * abriu como **`bedrock`**, 32 cubos, 22 grupos, textura 128×128 carregada;
+  * abriu como **`bedrock`**, 55 cubos, 23 grupos, textura 128×128 carregada (v0.3.0);
   * **validador interno do Blockbench: 0 avisos e 0 erros**; nenhuma caixa de mensagem; nenhum
     erro de console depois de abrir;
   * reabrir e salvar de novo (`Codecs.project.compile`) **não mudou** cubos, UVs, grupos nem
     a hierarquia;
-  * **exportação Bedrock pelo próprio Blockbench** funcionou (`geometry.trex_verde`, 22 ossos,
-    32 cubos, `trex_verde.geo.json`);
-  * `visible_box` gravado = o calculado pelo Blockbench (`[7, 3.5, 1.25]`);
+  * **exportação Bedrock pelo próprio Blockbench** funcionou (`geometry.trex_verde`, 23 ossos,
+    55 cubos, `trex_verde.geo.json`);
+  * `visible_box` gravado = o calculado pelo Blockbench (`[6, 4.5, 1.75]`);
   * capturas de 5 ângulos; **IoU das silhuetas** (Blockbench × prévia do Ninho):
-    lado 0,981 · frente 0,978 · topo 0,989 (as diferenças são bordas de 1 px);
+    lado 0,985 · frente 0,997 · topo 0,989 (as diferenças são bordas de 1 px);
   * **articulações:** uma pose de teste (mandíbula, pescoço, cabeça, pernas, canela, cauda,
     braço e antebraço) aplicada dentro do Blockbench move cada parte em torno do pivô certo,
-    sem peças soltas; a mesma pose na prévia do Ninho dá IoU 0,985
+    sem peças soltas; a mesma pose na prévia do Ninho dá IoU 0,978
     (`comparacao_pose.png`).
 * **9 variantes** (galeria, 3 níveis de detalhe, textura 256, espinhos, chifres, penas,
   cicatrizes e o caso branco com cabeça 1,4×): todas com 0 avisos/erros do validador do
-  Blockbench, ida e volta idêntica, exportação Bedrock correta e IoU entre 0,96 e 1,00
+  Blockbench, ida e volta idêntica, exportação Bedrock correta e IoU entre 0,96 e 1,00 (v0.3.0)
   (`docs/verificacao-blockbench-variantes.json`, gerado por `tools/verify_variants.py`).
 * Inspeção visual feita por mim nas capturas: geometria, textura nas faces certas (olhos nas
   laterais, ventre claro embaixo, boca vermelha, dentes, dedos) e postura iguais à prévia.
@@ -182,8 +211,9 @@ dentro da saída do Colab.
 ## 5. Exemplo T-rex verde
 
 * Gerado no **modo procedural** (parâmetros escritos à mão), seed 42, textura 128, orçamento
-  64 — *não* pela IA, pelo motivo acima. Reproduzível com `python tools/make_example.py`
+  96 — *não* pela IA, pelo motivo acima. Reproduzível com `python tools/make_example.py`
   (mesmos bytes de `.bbmodel` e `.png`).
-* 32 cubos, 22 ossos, 75% da área do atlas reservada (51% em pixels de faces), validação do
-  Ninho sem erros nem avisos.
-* Geração: ~0,05–0,07 s; arquivos + prévias: ~0,3 s (CPU deste ambiente).
+* 55 cubos, 23 ossos, 64% do atlas com pixels de faces, validação do Ninho sem erros nem
+  avisos (inclusive zero faces no mesmo plano).
+* Geração: ~1,3 s, quase toda na sombra de contato (raios contra os cubos); arquivos + prévias:
+  ~0,5 s (CPU deste ambiente).

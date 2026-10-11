@@ -1,8 +1,8 @@
 {
   "tool": "Ninho Model Studio",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "spec_version": "1.0",
-  "generated_at": "2026-10-11T14:46:19+00:00",
+  "generated_at": "2026-10-11T19:27:47+00:00",
   "mode": "procedural",
   "mode_label": "Procedural (parâmetros preenchidos manualmente)",
   "description": "Um T-rex verde, com listras escuras nas costas, barriga creme, olhos amarelos e boca entreaberta.",
@@ -52,25 +52,32 @@
   "settings": {
     "texture_size_requested": 128,
     "texture_size": 128,
-    "element_budget": 64,
+    "element_budget": 96,
     "auto_texture_upgrade": true
   },
   "texture_generation": "procedural (regras determinísticas a partir da seed; não usa IA)",
   "result": {
-    "cubes": 32,
-    "bones": 22,
+    "cubes": 55,
+    "bones": 23,
     "structure": {
-      "tail_segments": 4,
+      "tail_segments": 5,
       "metatarsus": true,
       "jaw_split": true,
       "chest": true,
-      "teeth": true
+      "teeth": true,
+      "toes": true,
+      "rounding": true,
+      "cheeks": true,
+      "muscles": true,
+      "throat": true,
+      "tongue": true
     },
     "extras": [
-      "brows"
+      "brows",
+      "toe_claws"
     ],
-    "atlas_usage": 0.752,
-    "atlas_strategy": "agrupado por região"
+    "atlas_usage": 0.956,
+    "atlas_strategy": "agrupado por região, compacto"
   },
   "validation": {
     "ok": true,
@@ -88,17 +95,23 @@
       "pintura das faces",
       "pivôs",
       "chão",
+      "faces no mesmo plano",
       "orçamento de elementos",
       "geo.json do GeckoLib"
     ],
     "stats": {
-      "atlas_usado_px": 8316,
-      "atlas_ocupacao": 0.508,
+      "atlas_usado_px": 10534,
+      "atlas_ocupacao": 0.643,
       "faces_sem_pintura": 0,
+      "cubos_recortados": [
+        "teeth_lower",
+        "teeth_upper"
+      ],
       "altura_minima": -0.146,
-      "cubos": 32,
-      "ossos": 22,
-      "profundidade_hierarquia": 6
+      "faces_coincidentes": 0,
+      "cubos": 55,
+      "ossos": 23,
+      "profundidade_hierarquia": 7
     }
   },
   "files": {
@@ -106,9 +119,9 @@
     "texture": "trex_verde.png",
     "geo": "trex_verde.geo.json",
     "sha256": {
-      "trex_verde.bbmodel": "b22ab0b8e877ff9555556cb19314a985fffaeb86870d08309c68c56a8ad55f5c",
-      "trex_verde.png": "4253ed895713ba603bc80625c53af0416d0b6a9f8cd0be8160945200a6503242",
-      "trex_verde.geo.json": "5967e21ab36431cf302b9c5775b4a196d39c6278bcfac24aedb213efb5f44de6"
+      "trex_verde.bbmodel": "29aeb6c243ccae3f7bd0b021f980b293017136e9909d4bc8800c1f1e278409e4",
+      "trex_verde.png": "4bd723eabdd60d0f245444ba66632567f74dad3b88e4fb8b040ceffb939aee22",
+      "trex_verde.geo.json": "f4744d1becf445c11bf21ae20e982b6838abe909ac7b4ac291c02107b9f30031"
     }
   },
   "blockbench": {
