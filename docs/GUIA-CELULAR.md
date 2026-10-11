@@ -31,7 +31,8 @@ Toque no ▶ à esquerda de cada etapa e espere o ✅.
 4. **Gerar e visualizar** — mostra as vistas de frente, lado, topo, perspectiva, traseira e
    ventre, o atlas da textura, o esqueleto com os pivôs e um visualizador 3D
    (um dedo gira, dois dedos aproximam, dois toques voltam ao início).
-5. **Baixar os arquivos** — baixa o `.zip`. Se o download não começar, toque no botão verde.
+5. **Baixar os arquivos** — baixa o `.zip` (`.bbmodel`, `.png`, `.geo.json`, `.json`, imagens e
+   visualizador). Se o download não começar, toque no botão verde.
 
 **Mudou algo?** Toque ▶ na Etapa 3 e depois ▶ na Etapa 4. Não precisa repetir as Etapas 1 e 2.
 Com a mesma descrição (e criatividade 0), a IA não é chamada de novo: o resultado anterior é
@@ -44,8 +45,14 @@ pedir outra leitura.
    *só o .bbmodel* na Etapa 5).
 2. No Chrome, acesse `https://web.blockbench.net` → **File → Open Model** → escolha o
    `.bbmodel`. A textura já vem embutida.
-3. Para o Minecraft Bedrock: **File → Export → Export Bedrock Geometry** (gera o `.geo.json`;
-   use junto com o `.png`).
+3. Não precisa exportar nada: o `.zip` já traz o `.geo.json`, igual ao que o Blockbench exporta em
+   **File → Export → Export Bedrock Geometry**.
+
+## 4b. Minecraft Java
+
+O `.geo.json` + o `.png` são o modelo e a textura no formato do mod **GeckoLib**. Sozinhos eles
+ainda não colocam o T-rex no jogo: falta o mod que registra a criatura, e as animações.
+Detalhes em [MINECRAFT-JAVA.md](MINECRAFT-JAVA.md).
 
 ## 5. Se algo der errado
 

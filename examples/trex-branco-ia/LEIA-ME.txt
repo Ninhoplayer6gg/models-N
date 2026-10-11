@@ -6,6 +6,7 @@ Arquivos deste pacote
 tyranos_rex.bbmodel   Projeto EDITÁVEL do Blockbench (formato bedrock, versão do arquivo 5.0),
                  com cubos, grupos (ossos), pivôs, UV e a textura embutida.
 tyranos_rex.png       Textura (128x128) gerada de forma PROCEDURAL (regras + seed, sem IA).
+tyranos_rex.geo.json  Modelo para o Minecraft Java com o mod GeckoLib (geometria Bedrock 1.12.0).
 tyranos_rex.json      Configuração: modo (ia), descrição, parâmetros, seed, versão e validação.
 tyranos_rex_vistas.png      Vistas: perspectiva, lado, frente, topo, traseira e ventre.
 tyranos_rex_atlas.png       Atlas UV ampliado com o nome de cada cubo e a letra de cada face
@@ -17,9 +18,20 @@ tyranos_rex_3d.html         Visualizador 3D (abra no navegador; funciona offline
 Projeto editável x formatos do Minecraft
 ----------------------------------------
 O .bbmodel é o arquivo de trabalho do Blockbench; o jogo não lê .bbmodel.
-Para usar no Minecraft, abra o .bbmodel no Blockbench (app ou https://web.blockbench.net)
-e exporte para o formato do destino:
-  * Bedrock: File > Export > Export Bedrock Geometry (.geo.json) + a textura .png.
-  * GeckoLib / Java: exportadores específicos ficam para uma etapa posterior.
+
+Minecraft Java (GeckoLib): use tyranos_rex.geo.json + tyranos_rex.png. É o mesmo arquivo que o
+Blockbench exporta em File > Export > Export Bedrock Geometry (o plugin do GeckoLib usa
+esse exportador). Dentro de um mod, as pastas são:
+  GeckoLib 5 (Minecraft 1.21.5 em diante):
+    assets/<modid>/geckolib/models/entity/tyranos_rex.geo.json
+  GeckoLib 4 (Minecraft 1.20.1 a 1.21.4):
+    assets/<modid>/geo/entity/tyranos_rex.geo.json
+  Textura (as duas versões): assets/<modid>/textures/entity/tyranos_rex.png
+Atenção: só esses arquivos não colocam a criatura no jogo. No Java, uma criatura nova
+precisa de um mod (.jar) que a registre, junto com o GeckoLib instalado. As animações e
+o mod ainda não fazem parte deste pacote.
+
+Bedrock: o mesmo .geo.json serve como geometria de entidade (pasta models/entity do
+pacote de recursos).
 
 A criatura olha para -Z (norte), com o lado direito em +X, pés em Y=0.

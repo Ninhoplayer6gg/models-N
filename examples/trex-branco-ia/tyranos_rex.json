@@ -1,8 +1,8 @@
 {
   "tool": "Ninho Model Studio",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "spec_version": "1.0",
-  "generated_at": "2026-10-11T14:05:48+00:00",
+  "generated_at": "2026-10-11T14:46:20+00:00",
   "mode": "ia",
   "mode_label": "IA (descrição livre interpretada pelo modelo de linguagem)",
   "description": "Um T-rex branco musculoso, cabeça grande, listras escuras nas costas, barriga creme e olhos vermelhos",
@@ -194,7 +194,8 @@
       "pintura das faces",
       "pivôs",
       "chão",
-      "orçamento de elementos"
+      "orçamento de elementos",
+      "geo.json do GeckoLib"
     ],
     "stats": {
       "atlas_usado_px": 10080,
@@ -209,9 +210,11 @@
   "files": {
     "bbmodel": "tyranos_rex.bbmodel",
     "texture": "tyranos_rex.png",
+    "geo": "tyranos_rex.geo.json",
     "sha256": {
       "tyranos_rex.bbmodel": "3d08702aec81911086d0bb6620a7be99346acb147857f2d2c5f503ae620871bd",
-      "tyranos_rex.png": "a0a79eee60eb8d41fdad654846fe6036e35e85614d532bd62318d45183b365c6"
+      "tyranos_rex.png": "a0a79eee60eb8d41fdad654846fe6036e35e85614d532bd62318d45183b365c6",
+      "tyranos_rex.geo.json": "b5e68f09ca72938e2a9ec5225e807f50a98b11ad74b11170981bf684280748df"
     }
   },
   "blockbench": {
@@ -219,7 +222,29 @@
     "model_format": "bedrock",
     "box_uv": true,
     "reference_version": "5.2.2",
-    "note": "Projeto editável do Blockbench. Para o Minecraft, exporte no Blockbench (ex.: Bedrock Geometry)."
+    "note": "Projeto editável do Blockbench (o jogo não lê .bbmodel)."
+  },
+  "minecraft_java": {
+    "geckolib_model": "tyranos_rex.geo.json",
+    "geckolib_model_format": "geometria Bedrock 1.12.0 (a mesma exportação do Blockbench/plugin GeckoLib)",
+    "texture": "tyranos_rex.png",
+    "paths_in_mod": {
+      "geckolib4": {
+        "minecraft": "1.20.1 a 1.21.4",
+        "model": "assets/<modid>/geo/entity/tyranos_rex.geo.json",
+        "animation": "assets/<modid>/animations/entity/tyranos_rex.animation.json",
+        "texture": "assets/<modid>/textures/entity/tyranos_rex.png"
+      },
+      "geckolib5": {
+        "minecraft": "1.21.5 em diante",
+        "model": "assets/<modid>/geckolib/models/entity/tyranos_rex.geo.json",
+        "animation": "assets/<modid>/geckolib/animations/entity/tyranos_rex.animation.json",
+        "texture": "assets/<modid>/textures/entity/tyranos_rex.png"
+      }
+    },
+    "animations": null,
+    "mod_jar": null,
+    "status": "modelo e textura prontos para o GeckoLib; faltam as animações e o mod (.jar) que registra a criatura"
   },
   "notes": [
     "reconstruído com a versão atual a partir da interpretação da IA feita no Colab (versão 0.1.0, 2026-10-11); a IA não foi chamada de novo",

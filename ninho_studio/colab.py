@@ -489,9 +489,11 @@ def baixar_arquivos(o_que: str = "pacote .zip", copiar_para_drive: bool = False)
         "só o .bbmodel": ["bbmodel"],
         "só a textura .png": ["png"],
         "só o .json": ["json"],
-        "todos separados": ["bbmodel", "png", "json", "zip"],
+        "só o .geo.json (Minecraft Java)": ["geo"],
+        "todos separados": ["bbmodel", "png", "geo", "json", "zip"],
     }.get(o_que, ["zip"])
-    mimes = {"zip": "application/zip", "bbmodel": "application/json", "png": "image/png", "json": "application/json"}
+    mimes = {"zip": "application/zip", "bbmodel": "application/json", "png": "image/png", "json": "application/json",
+             "geo": "application/json"}
     links = "".join(_data_link(paths[k], os.path.basename(paths[k]), mimes[k]) for k in choice)
     _box("Seus arquivos", "Se o download não começar sozinho, toque nos botões abaixo:<br>" + links, "ok")
     if _has_colab():
@@ -519,8 +521,9 @@ def salvar_no_drive(pasta: str = "Ninho-Model-Studio") -> None:
     drive.mount("/content/drive")
     dest = os.path.join("/content/drive/MyDrive", pasta)
     os.makedirs(dest, exist_ok=True)
-    for key in ("zip", "bbmodel", "png", "json"):
-        shutil.copy2(STATE.last_paths[key], dest)
+    for key in ("zip", "bbmodel", "png", "geo", "json"):
+        if key in STATE.last_paths:
+            shutil.copy2(STATE.last_paths[key], dest)
     _box("✅ Copiado para o Google Drive", f"Pasta: MyDrive/{_html.escape(pasta)}", "ok")
 
 

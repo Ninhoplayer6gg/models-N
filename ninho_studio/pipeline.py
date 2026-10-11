@@ -26,6 +26,7 @@ from .bbmodel import (
     sanitize_identifier,
 )
 from .builders import build_model
+from .geo import GEO_FORMAT_VERSION, GECKOLIB_PATHS, bbmodel_to_geo, geo_dumps, validate_geo
 from .model import Model
 from .spec import SPEC_VERSION, BuildSettings, SpecValidationError, normalize_spec, validate_spec
 from .texture import paint_texture
@@ -48,6 +49,8 @@ class GenerationResult:
     config: dict[str, Any]
     base_name: str
     timings: dict[str, float] = field(default_factory=dict)
+    geo: dict[str, Any] = field(default_factory=dict)  # geometria para o GeckoLib (Minecraft Java)
+    geo_text: str = ""
 
     @property
     def ok(self) -> bool:
@@ -94,6 +97,11 @@ def generate(
     name = base_name or sanitize_identifier(spec.get("name") or "trex")
     bb = model_to_bbmodel(model, png, f"{name}.png", identifier=name)
     report = validate_bbmodel(bb, element_budget=settings.element_budget, texture=texture)
+    geo = bbmodel_to_geo(bb)
+    geo_text = geo_dumps(geo)
+    report.checks.append("geo.json do GeckoLib")
+    for problem in validate_geo(geo, (int(texture.shape[1]), int(texture.shape[0]))):
+        report.error("geckolib", problem)
     t3 = time.perf_counter()
     notes = list(extra_notes or []) + notes
 
@@ -111,6 +119,7 @@ def generate(
         report=report,
         notes=notes,
         name=name,
+        geo_text=geo_text,
     )
     return GenerationResult(
         spec=spec,
@@ -125,6 +134,8 @@ def generate(
         config=config,
         base_name=name,
         timings={"construcao_s": t1 - t0, "uv_textura_s": t2 - t1, "exportacao_validacao_s": t3 - t2},
+        geo=geo,
+        geo_text=geo_text,
     )
 
 
@@ -171,7 +182,7 @@ def _sha256(data: bytes) -> str:
 
 
 def build_config(*, spec, settings, mode, description, ai_info, manual_adjustments, model, bbmodel, png, atlas, report,
-                 notes, name) -> dict[str, Any]:
+                 notes, name, geo_text) -> dict[str, Any]:
     from .bbmodel import dumps
 
     return {
@@ -206,9 +217,11 @@ def build_config(*, spec, settings, mode, description, ai_info, manual_adjustmen
         "files": {
             "bbmodel": f"{name}.bbmodel",
             "texture": f"{name}.png",
+            "geo": f"{name}.geo.json",
             "sha256": {
                 f"{name}.bbmodel": _sha256(dumps(bbmodel).encode("utf-8")),
                 f"{name}.png": _sha256(png),
+                f"{name}.geo.json": _sha256(geo_text.encode("utf-8")),
             },
         },
         "blockbench": {
@@ -216,7 +229,19 @@ def build_config(*, spec, settings, mode, description, ai_info, manual_adjustmen
             "model_format": MODEL_FORMAT,
             "box_uv": True,
             "reference_version": BLOCKBENCH_REFERENCE_VERSION,
-            "note": "Projeto editável do Blockbench. Para o Minecraft, exporte no Blockbench (ex.: Bedrock Geometry).",
+            "note": "Projeto editável do Blockbench (o jogo não lê .bbmodel).",
+        },
+        "minecraft_java": {
+            "geckolib_model": f"{name}.geo.json",
+            "geckolib_model_format": f"geometria Bedrock {GEO_FORMAT_VERSION} (a mesma exportação do Blockbench/plugin GeckoLib)",
+            "texture": f"{name}.png",
+            "paths_in_mod": {
+                key: {k: v.format(modid="<modid>", name=name) for k, v in paths.items()}
+                for key, paths in GECKOLIB_PATHS.items()
+            },
+            "animations": None,
+            "mod_jar": None,
+            "status": "modelo e textura prontos para o GeckoLib; faltam as animações e o mod (.jar) que registra a criatura",
         },
         "notes": notes,
         "reproduce": "Use 'parameters', 'seed' e 'settings' no modo procedural para obter o mesmo .bbmodel e o mesmo .png.",

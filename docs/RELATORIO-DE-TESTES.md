@@ -2,6 +2,30 @@
 
 Este relatório diz **exatamente** o que foi testado, como, e o que **não** pôde ser testado.
 
+## Atualização v0.2.0 — modelo para o Minecraft Java (GeckoLib)
+
+Cada geração agora traz `<nome>.geo.json` (formato Bedrock `1.12.0`, que o GeckoLib lê),
+escrito por `ninho_studio/geo.py`. Guia: [MINECRAFT-JAVA.md](MINECRAFT-JAVA.md).
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Igual ao exportador do Blockbench | `tests/test_geo.py` compara com os `.geo.json` exportados pelo Blockbench 5.2.2 para os 2 exemplos; `tools/verify_geckolib.py` pede a exportação ao Blockbench em 12 casos (2 exemplos, 9 variantes, 1 caso sintético com cubo girado, cubo e osso espelhados e cubo inflado) | **idêntico byte a byte** nos 12 |
+| `.geo.json` sozinho reproduz o modelo | o mesmo script reabre o `.geo.json` com o `.png` num projeto novo do Blockbench e compara com o projeto original | ossos, pivôs, rotações, cubos, UV das faces e caixa do modelo **iguais**; reexportar dá o mesmo texto; 0 erros do validador; capturas com até 0,11% de pixels diferentes, só onde faces de cubos diferentes ficam no mesmo plano (achado abaixo) |
+| Leitores do GeckoLib | `tools/geckolib_loader_check.py` compila do código-fonte o leitor do **GeckoLib 4.9.3** (Minecraft 1.21.1) e do **GeckoLib 5.5.7** (Minecraft 26.3), com substitutos mínimos das classes do Minecraft | os 12 arquivos carregam **sem erro nem aviso**; ossos/cubos iguais; **9.648 cantos de face** com posição e UV iguais aos do Blockbench, nas duas versões |
+| Controle negativo | 5 defeitos plantados (UV deslocado 1 px, sinal de rotação, X sem espelhar na origem e no pivô, espelho indevido) | **todos acusados** nas duas versões |
+| Pastas do mod | lidas no código do GeckoLib (`GeckoLibResources`, `GeckoLibCache`, `DefaultedGeoModel`) | GeckoLib 5: `geckolib/models/`; GeckoLib 4: `geo/` |
+
+**Achado:** as poucas diferenças nas capturas vêm de faces de cubos diferentes no mesmo plano e
+viradas para o mesmo lado. Uma busca na geometria dos 12 casos encontrou isso no cotovelo
+(braço/antebraço) em todos eles. Em alguns casos apareceu também nos dentes (detalhe baixo), entre
+o pescoço e a mandíbula, nas sobrancelhas e nas garras dos pés. A ordem de desenho decide qual face
+aparece, então isso pode "piscar" no jogo. É um defeito do modelo, não da exportação; a correção
+fica para a etapa das animações.
+
+**Não testado:** o T-rex dentro do Minecraft (precisa do mod `.jar`, ainda não feito) e as
+animações (ainda não feitas). Os repositórios do Fabric, NeoForge, Forge e do Minecraft estão
+bloqueados neste ambiente, então nenhum mod pode ser compilado aqui.
+
 ## Atualização v0.1.1 — primeiro teste real da IA (Colab, feito pelo usuário)
 
 O usuário rodou o notebook v0.1.0 no Google Colab e enviou o `.zip` gerado
@@ -50,8 +74,8 @@ Antes/depois em `examples/trex-branco-ia/antes_depois.png`.
 
 | Ambiente | Resultado |
 |---|---|
-| Python do sistema (sem torch) | **124 passaram, 2 pulados** (os 2 dependem de torch/transformers) |
-| Ambiente com torch + transformers | **128 passaram** |
+| Python do sistema (sem torch) | **139 passaram, 2 pulados** (os 2 módulos que dependem de torch/transformers) |
+| Ambiente com torch + transformers | **143 passaram** |
 
 O que cobrem:
 
@@ -76,6 +100,12 @@ O que cobrem:
   textura, textura inexistente, nome de osso duplicado, cubo fora do outliner, referência
   inexistente, grupo repetido, versão errada, orçamento, UV incoerente com o box UV, face sem
   pintura, pivô longe da geometria, modelo abaixo do chão.
+* `test_geo.py` — `.geo.json` **idêntico byte a byte** ao exportado pelo Blockbench 5.2.2 para os
+  2 exemplos; sinais e convenções (X espelhado, rotações X/Y invertidas, pivôs, box UV); o
+  `.geo.json` lido de volta dá o mesmo projeto; cubos girados/espelhados/inflados; regras de
+  JSON do Blockbench (números, cubos em uma linha, escapes); a conferência do GeckoLib acusa
+  ossos repetidos, pai inexistente, ciclo, tamanho não inteiro, UV fora da textura e versão
+  errada; `.geo.json` dentro do `.zip` com hash no `.json`.
 * `test_mesh_render.py` — malha lida do `.bbmodel` bate com o modelo; vistas renderizam; o
   olho aparece na vista lateral; folhas de imagens e visualizador HTML.
 * `test_ai.py` — extração de JSON (texto em volta, cercas de código, `<think>`, chaves dentro
@@ -146,7 +176,8 @@ dentro da saída do Colab.
   funcionaram (inclusive o download), mas não diz como ficaram os formulários no celular, se o
   visualizador 3D abriu na saída do Colab, nem o comportamento com o Google Drive e os limites
   de sessão.
-* **Minecraft.** O `.geo.json` exportado pelo Blockbench não foi carregado no jogo.
+* **Minecraft.** Nenhum arquivo foi carregado no jogo. O `.geo.json` foi conferido no Blockbench
+  e nos leitores do GeckoLib 4 e 5 fora do Minecraft (seção v0.2.0).
 
 ## 5. Exemplo T-rex verde
 

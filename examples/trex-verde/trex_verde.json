@@ -1,8 +1,8 @@
 {
   "tool": "Ninho Model Studio",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "spec_version": "1.0",
-  "generated_at": "2026-10-11T14:05:48+00:00",
+  "generated_at": "2026-10-11T14:46:19+00:00",
   "mode": "procedural",
   "mode_label": "Procedural (parâmetros preenchidos manualmente)",
   "description": "Um T-rex verde, com listras escuras nas costas, barriga creme, olhos amarelos e boca entreaberta.",
@@ -88,7 +88,8 @@
       "pintura das faces",
       "pivôs",
       "chão",
-      "orçamento de elementos"
+      "orçamento de elementos",
+      "geo.json do GeckoLib"
     ],
     "stats": {
       "atlas_usado_px": 8316,
@@ -103,9 +104,11 @@
   "files": {
     "bbmodel": "trex_verde.bbmodel",
     "texture": "trex_verde.png",
+    "geo": "trex_verde.geo.json",
     "sha256": {
       "trex_verde.bbmodel": "b22ab0b8e877ff9555556cb19314a985fffaeb86870d08309c68c56a8ad55f5c",
-      "trex_verde.png": "4253ed895713ba603bc80625c53af0416d0b6a9f8cd0be8160945200a6503242"
+      "trex_verde.png": "4253ed895713ba603bc80625c53af0416d0b6a9f8cd0be8160945200a6503242",
+      "trex_verde.geo.json": "5967e21ab36431cf302b9c5775b4a196d39c6278bcfac24aedb213efb5f44de6"
     }
   },
   "blockbench": {
@@ -113,7 +116,29 @@
     "model_format": "bedrock",
     "box_uv": true,
     "reference_version": "5.2.2",
-    "note": "Projeto editável do Blockbench. Para o Minecraft, exporte no Blockbench (ex.: Bedrock Geometry)."
+    "note": "Projeto editável do Blockbench (o jogo não lê .bbmodel)."
+  },
+  "minecraft_java": {
+    "geckolib_model": "trex_verde.geo.json",
+    "geckolib_model_format": "geometria Bedrock 1.12.0 (a mesma exportação do Blockbench/plugin GeckoLib)",
+    "texture": "trex_verde.png",
+    "paths_in_mod": {
+      "geckolib4": {
+        "minecraft": "1.20.1 a 1.21.4",
+        "model": "assets/<modid>/geo/entity/trex_verde.geo.json",
+        "animation": "assets/<modid>/animations/entity/trex_verde.animation.json",
+        "texture": "assets/<modid>/textures/entity/trex_verde.png"
+      },
+      "geckolib5": {
+        "minecraft": "1.21.5 em diante",
+        "model": "assets/<modid>/geckolib/models/entity/trex_verde.geo.json",
+        "animation": "assets/<modid>/geckolib/animations/entity/trex_verde.animation.json",
+        "texture": "assets/<modid>/textures/entity/trex_verde.png"
+      }
+    },
+    "animations": null,
+    "mod_jar": null,
+    "status": "modelo e textura prontos para o GeckoLib; faltam as animações e o mod (.jar) que registra a criatura"
   },
   "notes": [],
   "reproduce": "Use 'parameters', 'seed' e 'settings' no modo procedural para obter o mesmo .bbmodel e o mesmo .png."

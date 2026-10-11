@@ -1,0 +1,374 @@
+{
+ "o_que_e": "leitores de geometria do GeckoLib compilados do código-fonte original, sem o Minecraft",
+ "substitutos": "classes do Minecraft trocadas por versões mínimas (tools/geckolib_check/stubs)",
+ "ninho_model_studio": "0.2.0",
+ "data": "2026-10-11",
+ "o_que_foi_conferido": [
+  "o GeckoLib lê cada .geo.json sem erro nem aviso no log, e aceita a versão 1.12.0",
+  "ossos: mesmos nomes, pais, pivôs e rotações do projeto do Blockbench",
+  "cubos: mesmo tamanho, pivô e rotação",
+  "cada canto de cada face: a posição e o UV do GeckoLib caem no mesmo ponto que no Blockbench",
+  "controle negativo: defeitos plantados de propósito são acusados"
+ ],
+ "nao_coberto": "renderização no jogo, registro da criatura e animações (exigem o Minecraft com o mod)",
+ "geckolib5": {
+  "geckolib": "GeckoLib 5.5.7 (branch main, Minecraft 26.3; a família 5 cobre o Minecraft 1.21.5 em diante), commit 7c96bef7e1658e4158453c17eb464f0fb7f92426",
+  "casos": [
+   {
+    "caso": "exemplo T-rex verde",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "exemplo T-rex branco (IA no Colab)",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Padrão (verde, listras)",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Filhote marrom com manchas",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 19,
+    "cubos": 25,
+    "cantos_de_face_conferidos": 600,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Cinza blindado com espinhos",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 23,
+    "cubos": 46,
+    "cantos_de_face_conferidos": 1104,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Emplumado azul com crista",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 23,
+    "cubos": 42,
+    "cantos_de_face_conferidos": 1008,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "detalhe low",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 19,
+    "cubos": 25,
+    "cantos_de_face_conferidos": 600,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "detalhe medium",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "detalhe high",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 23,
+    "cubos": 40,
+    "cantos_de_face_conferidos": 960,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "escala 1.4, textura 256",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "branco, cabeça 1.4 (caso do teste real)",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "sintético: cubo girado, cubo e osso espelhados, cubo inflado",
+    "carregou": true,
+    "format_version": "1.12.0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   }
+  ],
+  "controle_negativo": [
+   {
+    "defeito_plantado": "UV deslocado 1 pixel (quadril)",
+    "acusado": true,
+    "diferencas": [
+     "body/pelvis: face west (GeckoLib west): UV caem em outro lugar",
+     "body/pelvis: face east (GeckoLib east): UV caem em outro lugar",
+     "body/pelvis: face north (GeckoLib north): UV caem em outro lugar"
+    ]
+   },
+   {
+    "defeito_plantado": "sinal da rotação X trocado (tronco)",
+    "acusado": true,
+    "diferencas": [
+     "torso: rotação [4.5, -0.0, 0.0] (esperado [-4.5, 0, 0])"
+    ]
+   },
+   {
+    "defeito_plantado": "origem X sem espelhar (braço direito)",
+    "acusado": true,
+    "diferencas": [
+     "arm_right/upper_arm: face west (GeckoLib west): UV caem em outro lugar",
+     "arm_right/upper_arm: face west (GeckoLib east): UV caem em outro lugar",
+     "arm_right/upper_arm: face north (GeckoLib north): UV caem em outro lugar"
+    ]
+   },
+   {
+    "defeito_plantado": "pivô X sem espelhar (braço direito)",
+    "acusado": true,
+    "diferencas": [
+     "arm_right: pivô [-5.5, 22.5, -14.0] (esperado [5.5, 22.5, -14])"
+    ]
+   },
+   {
+    "defeito_plantado": "cubo espelhado sem querer (tronco)",
+    "acusado": true,
+    "diferencas": [
+     "torso/torso: face east (GeckoLib west): UV caem em outro lugar",
+     "torso/torso: face west (GeckoLib east): UV caem em outro lugar",
+     "torso/torso: face north (GeckoLib north): UV caem em outro lugar"
+    ]
+   }
+  ]
+ },
+ "geckolib4": {
+  "geckolib": "GeckoLib 4.9.3 (branch 1.21.1; a família 4 cobre o Minecraft 1.20.1 a 1.21.4), commit cce098097cdd2084d8383bec593e0db79e0ed5a0",
+  "casos": [
+   {
+    "caso": "exemplo T-rex verde",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "exemplo T-rex branco (IA no Colab)",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Padrão (verde, listras)",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Filhote marrom com manchas",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 19,
+    "cubos": 25,
+    "cantos_de_face_conferidos": 600,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Cinza blindado com espinhos",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 23,
+    "cubos": 46,
+    "cantos_de_face_conferidos": 1104,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "Emplumado azul com crista",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 23,
+    "cubos": 42,
+    "cantos_de_face_conferidos": 1008,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "detalhe low",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 19,
+    "cubos": 25,
+    "cantos_de_face_conferidos": 600,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "detalhe medium",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "detalhe high",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 23,
+    "cubos": 40,
+    "cantos_de_face_conferidos": 960,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "escala 1.4, textura 256",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "branco, cabeça 1.4 (caso do teste real)",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   },
+   {
+    "caso": "sintético: cubo girado, cubo e osso espelhados, cubo inflado",
+    "carregou": true,
+    "format_version": "V_1_12_0",
+    "versao_suportada": true,
+    "ossos": 22,
+    "cubos": 32,
+    "cantos_de_face_conferidos": 768,
+    "log_do_geckolib": [],
+    "diferencas": []
+   }
+  ],
+  "controle_negativo": [
+   {
+    "defeito_plantado": "UV deslocado 1 pixel (quadril)",
+    "acusado": true,
+    "diferencas": [
+     "body/pelvis: face west (GeckoLib west): UV caem em outro lugar",
+     "body/pelvis: face east (GeckoLib east): UV caem em outro lugar",
+     "body/pelvis: face north (GeckoLib north): UV caem em outro lugar"
+    ]
+   },
+   {
+    "defeito_plantado": "sinal da rotação X trocado (tronco)",
+    "acusado": true,
+    "diferencas": [
+     "torso: rotação [4.5, -0.0, 0.0] (esperado [-4.5, 0, 0])"
+    ]
+   },
+   {
+    "defeito_plantado": "origem X sem espelhar (braço direito)",
+    "acusado": true,
+    "diferencas": [
+     "arm_right/upper_arm: face west (GeckoLib west): UV caem em outro lugar",
+     "arm_right/upper_arm: face west (GeckoLib east): UV caem em outro lugar",
+     "arm_right/upper_arm: face north (GeckoLib north): UV caem em outro lugar"
+    ]
+   },
+   {
+    "defeito_plantado": "pivô X sem espelhar (braço direito)",
+    "acusado": true,
+    "diferencas": [
+     "arm_right: pivô [-5.5, 22.5, -14.0] (esperado [5.5, 22.5, -14])"
+    ]
+   },
+   {
+    "defeito_plantado": "cubo espelhado sem querer (tronco)",
+    "acusado": true,
+    "diferencas": [
+     "torso/torso: face east (GeckoLib west): UV caem em outro lugar",
+     "torso/torso: face west (GeckoLib east): UV caem em outro lugar",
+     "torso/torso: face north (GeckoLib north): UV caem em outro lugar"
+    ]
+   }
+  ]
+ }
+}

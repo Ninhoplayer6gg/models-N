@@ -19,6 +19,7 @@ pagas. Primeira versão: **T-rex ajustável**.
 | Exemplo T-rex verde (`.bbmodel`, `.png`, `.json`, `.zip`, prévias, visualizador 3D) | [`examples/trex-verde/`](examples/trex-verde/) |
 | T-rex branco do **primeiro teste real da IA no Colab** (com antes/depois das correções) | [`examples/trex-branco-ia/`](examples/trex-branco-ia/) |
 | Verificação no Blockbench 5.2.2 (capturas, relatório, `.geo.json`, pose de teste) | [`examples/trex-verde/blockbench/`](examples/trex-verde/blockbench/) |
+| **Minecraft Java (GeckoLib):** o que já está pronto, onde os arquivos ficam e o que falta | [`docs/MINECRAFT-JAVA.md`](docs/MINECRAFT-JAVA.md) |
 | Guia do celular · formato `.bbmodel` · IA · relatório de testes | [`docs/`](docs/) |
 
 ## Como funciona
@@ -32,7 +33,7 @@ controles ──► [Modo procedural] ──────────────
                                                                      ▼
    construtor (ossos, pivôs, cubos) → atlas box UV → textura PROCEDURAL → .bbmodel 5.0 (bedrock)
                                                                      ▼
-          validação do arquivo → prévias (lidas do próprio .bbmodel) → .png .json .zip
+          validação do arquivo → prévias (lidas do próprio .bbmodel) → .png .geo.json .json .zip
 ```
 
 * **Modo IA:** o modelo de linguagem lê a descrição e devolve só dados (tipo, proporções,
@@ -76,15 +77,18 @@ unhas e dedos; padrões **listras, manchas, faixas, mosqueado** contínuos entre
   **`bedrock`**, campos iguais aos que o Blockbench 5.2.2 grava ([detalhes](docs/FORMATO-BBMODEL.md)).
 * `.png` — textura. `.json` — modo, descrição, parâmetros, seed, versão, saída da IA,
   validação e hashes (regenerar a partir dele dá os mesmos bytes). `.zip` com tudo.
-* Para o Minecraft, abra o `.bbmodel` no Blockbench e exporte (ex.: *Export Bedrock Geometry*).
-  Exportadores GeckoLib/Java e animações ficam para as próximas etapas.
+* `.geo.json` — **modelo para o Minecraft Java com o mod GeckoLib** (geometria Bedrock 1.12.0,
+  que também serve no Bedrock). É idêntico, byte a byte, ao que o Blockbench exporta, e foi lido
+  sem erros pelos leitores do GeckoLib 4 e 5 ([detalhes](docs/MINECRAFT-JAVA.md)). Ainda faltam
+  as animações e o mod (`.jar`) que registra a criatura no jogo.
 
 ## Qualidade e testes
 
 Validação automática de dimensões, UUIDs, referências, hierarquia, UV fora da textura,
-consistência do box UV, sobreposição no atlas, faces sem pintura, pivôs e chão.
-128 testes automáticos; os exemplos e 9 variantes foram **abertos no Blockbench 5.2.2** sem
-avisos nem erros do validador dele. A IA real (Qwen2.5-Coder-1.5B, GPU T4) já rodou no Colab
+consistência do box UV, sobreposição no atlas, faces sem pintura, pivôs, chão e `.geo.json`
+do GeckoLib. 143 testes automáticos; os exemplos e 9 variantes foram **abertos no Blockbench 5.2.2** sem
+avisos nem erros do validador dele, e o `.geo.json` de 12 casos foi conferido no Blockbench e
+nos leitores do GeckoLib 4 e 5 compilados do código-fonte. A IA real (Qwen2.5-Coder-1.5B, GPU T4) já rodou no Colab
 num teste do usuário: JSON válido na 1ª tentativa em 11 s; as falhas observadas e as correções
 estão em [`docs/RELATORIO-DE-TESTES.md`](docs/RELATORIO-DE-TESTES.md).
 
@@ -103,6 +107,7 @@ Para adicionar outra criatura (outros dinossauros, quadrúpedes, humanoides): cr
 ### Próximos passos sugeridos
 
 1. Rodar o modo IA no Colab com 10–20 descrições variadas (o prompt mudou na v0.1.1) e anotar acertos.
-2. Exportadores Bedrock/GeckoLib e animações básicas (andar, rugir) usando os ossos atuais.
+2. Minecraft Java: animações (parado, andar, rugir) e o mod GeckoLib compilado numa etapa do Colab
+   (precisa da versão do Minecraft e do carregador: Fabric, NeoForge ou Forge).
 3. Novos planos corporais (raptor, quadrúpede, humanoide) reaproveitando atlas, textura e validação.
 4. Opção de UV espelhado para lados esquerdo/direito (texturas ainda menores).
