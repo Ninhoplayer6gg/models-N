@@ -183,11 +183,15 @@ class Model:
                 return cube
         raise KeyError(f"{bone}/{name}")
 
-    def world_corners(self, cube: Cube) -> np.ndarray:
-        return transform_points(self.cube_matrix(cube), cube.corners())
+    def world_corners(self, cube: Cube, inflated: bool = False) -> np.ndarray:
+        corners = cube.corners()
+        if inflated and cube.inflate:
+            lo, hi = corners.min(axis=0) - cube.inflate, corners.max(axis=0) + cube.inflate
+            corners = np.array([[x, y, z] for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
+        return transform_points(self.cube_matrix(cube), corners)
 
-    def world_bounds(self, cubes: Optional[list[Cube]] = None) -> tuple[np.ndarray, np.ndarray]:
-        pts = np.concatenate([self.world_corners(c) for c in (cubes if cubes is not None else self.iter_cubes())])
+    def world_bounds(self, cubes: Optional[list[Cube]] = None, inflated: bool = False) -> tuple[np.ndarray, np.ndarray]:
+        pts = np.concatenate([self.world_corners(c, inflated) for c in (cubes if cubes is not None else self.iter_cubes())])
         return pts.min(axis=0), pts.max(axis=0)
 
     # -- edição global -------------------------------------------------------

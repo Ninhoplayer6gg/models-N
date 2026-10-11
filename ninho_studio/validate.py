@@ -9,8 +9,10 @@ modelo interno, para pegar qualquer erro de exportação. Verificações:
 * referências inexistentes (outliner → grupos/cubos, faces → texturas);
 * hierarquia quebrada (itens fora do outliner, repetidos ou cubos fora de ossos);
 * UV fora da textura e UV inconsistente com o box UV;
-* sobreposição de regiões no atlas e faces sem pintura;
-* pivôs longe da geometria e partes abaixo do chão.
+* sobreposição de regiões no atlas e faces sem pintura (cubos "recortados", como os
+  dentes, podem ter transparência de propósito);
+* pivôs longe da geometria e partes abaixo do chão;
+* faces de cubos diferentes no mesmo plano e viradas para o mesmo lado (piscam no jogo).
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ from typing import Any, Optional
 import numpy as np
 
 from .bbmodel import FORMAT_VERSION, MODEL_FORMAT, decode_data_url
+from .coplanar import bbmodel_overlaps
 from .geometry import pivot_matrix, transform_points
 from .uv import FACES, box_uv_face_rects, rect_bounds
 
@@ -106,7 +109,9 @@ def validate_bbmodel(
     element_budget: Optional[int] = None,
     texture: Optional[np.ndarray] = None,
     ground_tolerance: float = 0.3,
+    cutout: Optional[set[str]] = None,
 ) -> ValidationReport:
+    """Valida o projeto. ``cutout``: UUIDs dos cubos com transparência de propósito (padrão: nomes "teeth*")."""
     rep = ValidationReport()
 
     # 1) cabeçalho -------------------------------------------------------------
@@ -302,7 +307,11 @@ def validate_bbmodel(
         th, tw = tex_img.shape[:2]
         su, sv = tw / float(W), th / float(H)
         unpainted = 0
+        if cutout is None:
+            cutout = {el.get("uuid") for el in elements if str(el.get("name", "")).startswith("teeth")}
         for el in elements:
+            is_cutout = el.get("uuid") in cutout
+            visible = 0
             for face, fd in el.get("faces", {}).items():
                 if fd.get("texture") is None or not _finite_vec(fd.get("uv"), 4):
                     continue
@@ -315,12 +324,19 @@ def validate_bbmodel(
                 if alpha.size == 0:
                     continue
                 frac = float((alpha > 0).mean())
+                visible += int((alpha > 0).sum())
+                if is_cutout:
+                    continue
                 if frac == 0:
                     unpainted += 1
                     rep.error("pintura", f"cubo {el.get('name')!r} face {face}: região totalmente transparente")
                 elif frac < 0.99:
                     rep.warn("pintura", f"cubo {el.get('name')!r} face {face}: {100 * (1 - frac):.0f}% transparente")
+            if is_cutout and visible == 0:
+                unpainted += 1
+                rep.error("pintura", f"cubo recortado {el.get('name')!r}: nenhum pixel visível")
         rep.stats["faces_sem_pintura"] = unpainted
+        rep.stats["cubos_recortados"] = sorted(el.get("name") for el in elements if el.get("uuid") in cutout)
 
     # 7) pivôs e chão (pose final) -------------------------------------------------
     rep.checks.append("pivôs")
@@ -365,7 +381,17 @@ def validate_bbmodel(
         if np.any(o < lo - margin) or np.any(o > hi + margin):
             rep.warn("pivo", f"pivô do osso {g.get('name')!r} ({o.tolist()}) está longe dos próprios cubos")
 
-    # 8) orçamento ---------------------------------------------------------------------
+    # 8) faces no mesmo plano (z-fighting) -----------------------------------------------
+    rep.checks.append("faces no mesmo plano")
+    try:
+        coincident = bbmodel_overlaps(bb)
+    except (KeyError, ValueError, np.linalg.LinAlgError):
+        coincident = []
+    for a, fa, b, fb, area in coincident:
+        rep.warn("coplanar", f"faces coincidentes: {a!r} ({fa}) e {b!r} ({fb}), {area:.1f} px² — podem piscar no jogo")
+    rep.stats["faces_coincidentes"] = len(coincident)
+
+    # 9) orçamento ---------------------------------------------------------------------
     rep.checks.append("orçamento de elementos")
     rep.stats["cubos"] = len(elements)
     rep.stats["ossos"] = len(groups)

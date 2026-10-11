@@ -1,8 +1,8 @@
 {
   "tool": "Ninho Model Studio",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "spec_version": "1.0",
-  "generated_at": "2026-10-11T13:32:43+00:00",
+  "generated_at": "2026-10-11T19:27:47+00:00",
   "mode": "procedural",
   "mode_label": "Procedural (parâmetros preenchidos manualmente)",
   "description": "Um T-rex verde, com listras escuras nas costas, barriga creme, olhos amarelos e boca entreaberta.",
@@ -52,25 +52,32 @@
   "settings": {
     "texture_size_requested": 128,
     "texture_size": 128,
-    "element_budget": 64,
+    "element_budget": 96,
     "auto_texture_upgrade": true
   },
   "texture_generation": "procedural (regras determinísticas a partir da seed; não usa IA)",
   "result": {
-    "cubes": 32,
-    "bones": 22,
+    "cubes": 55,
+    "bones": 23,
     "structure": {
-      "tail_segments": 4,
+      "tail_segments": 5,
       "metatarsus": true,
       "jaw_split": true,
       "chest": true,
-      "teeth": true
+      "teeth": true,
+      "toes": true,
+      "rounding": true,
+      "cheeks": true,
+      "muscles": true,
+      "throat": true,
+      "tongue": true
     },
     "extras": [
-      "brows"
+      "brows",
+      "toe_claws"
     ],
-    "atlas_usage": 0.752,
-    "atlas_strategy": "agrupado por região"
+    "atlas_usage": 0.956,
+    "atlas_strategy": "agrupado por região, compacto"
   },
   "validation": {
     "ok": true,
@@ -88,24 +95,33 @@
       "pintura das faces",
       "pivôs",
       "chão",
-      "orçamento de elementos"
+      "faces no mesmo plano",
+      "orçamento de elementos",
+      "geo.json do GeckoLib"
     ],
     "stats": {
-      "atlas_usado_px": 8316,
-      "atlas_ocupacao": 0.508,
+      "atlas_usado_px": 10534,
+      "atlas_ocupacao": 0.643,
       "faces_sem_pintura": 0,
+      "cubos_recortados": [
+        "teeth_lower",
+        "teeth_upper"
+      ],
       "altura_minima": -0.146,
-      "cubos": 32,
-      "ossos": 22,
-      "profundidade_hierarquia": 6
+      "faces_coincidentes": 0,
+      "cubos": 55,
+      "ossos": 23,
+      "profundidade_hierarquia": 7
     }
   },
   "files": {
     "bbmodel": "trex_verde.bbmodel",
     "texture": "trex_verde.png",
+    "geo": "trex_verde.geo.json",
     "sha256": {
-      "trex_verde.bbmodel": "163779db4c2a28e41f6c27bed400b91dceab2d9b1341fb1c63356120f658eef6",
-      "trex_verde.png": "16ce74a9e010512e27ee2d43e02a5bb258b94f97323802a7a6a0980b797c8470"
+      "trex_verde.bbmodel": "29aeb6c243ccae3f7bd0b021f980b293017136e9909d4bc8800c1f1e278409e4",
+      "trex_verde.png": "4bd723eabdd60d0f245444ba66632567f74dad3b88e4fb8b040ceffb939aee22",
+      "trex_verde.geo.json": "f4744d1becf445c11bf21ae20e982b6838abe909ac7b4ac291c02107b9f30031"
     }
   },
   "blockbench": {
@@ -113,7 +129,29 @@
     "model_format": "bedrock",
     "box_uv": true,
     "reference_version": "5.2.2",
-    "note": "Projeto editável do Blockbench. Para o Minecraft, exporte no Blockbench (ex.: Bedrock Geometry)."
+    "note": "Projeto editável do Blockbench (o jogo não lê .bbmodel)."
+  },
+  "minecraft_java": {
+    "geckolib_model": "trex_verde.geo.json",
+    "geckolib_model_format": "geometria Bedrock 1.12.0 (a mesma exportação do Blockbench/plugin GeckoLib)",
+    "texture": "trex_verde.png",
+    "paths_in_mod": {
+      "geckolib4": {
+        "minecraft": "1.20.1 a 1.21.4",
+        "model": "assets/<modid>/geo/entity/trex_verde.geo.json",
+        "animation": "assets/<modid>/animations/entity/trex_verde.animation.json",
+        "texture": "assets/<modid>/textures/entity/trex_verde.png"
+      },
+      "geckolib5": {
+        "minecraft": "1.21.5 em diante",
+        "model": "assets/<modid>/geckolib/models/entity/trex_verde.geo.json",
+        "animation": "assets/<modid>/geckolib/animations/entity/trex_verde.animation.json",
+        "texture": "assets/<modid>/textures/entity/trex_verde.png"
+      }
+    },
+    "animations": null,
+    "mod_jar": null,
+    "status": "modelo e textura prontos para o GeckoLib; faltam as animações e o mod (.jar) que registra a criatura"
   },
   "notes": [],
   "reproduce": "Use 'parameters', 'seed' e 'settings' no modo procedural para obter o mesmo .bbmodel e o mesmo .png."

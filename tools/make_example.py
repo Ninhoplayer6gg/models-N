@@ -9,6 +9,7 @@ baixar os pesos do Qwen; ver docs/RELATORIO-DE-TESTES.md.)
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -29,13 +30,33 @@ DESCRIPTION = "Um T-rex verde, com listras escuras nas costas, barriga creme, ol
 def example() -> None:
     spec = default_spec()
     spec["name"] = "T-rex verde"
-    result = generate(spec, BuildSettings(seed=42, texture_size=128, element_budget=64), mode="procedural",
+    result = generate(spec, BuildSettings(seed=42, texture_size=128, element_budget=96), mode="procedural",
                       description=DESCRIPTION, base_name="trex_verde")
     out = os.path.join(ROOT, "examples", "trex-verde")
     paths = save_outputs(result, out)
     print(result.validation.summary_pt())
     for key, path in paths.items():
         print(f"{key:10s} {os.path.relpath(path, ROOT)}")
+
+
+def white_from_colab() -> None:
+    """Reconstrói o T-rex branco do primeiro teste real da IA (Colab, GPU T4), sem chamar a IA de novo.
+
+    Usa o .json baixado do Colab (pasta colab_original/), que guarda a resposta validada da IA.
+    """
+    folder = os.path.join(ROOT, "examples", "trex-branco-ia")
+    with open(os.path.join(folder, "colab_original", "tyranos_rex.json"), encoding="utf-8") as fh:
+        cfg = json.load(fh)
+    s = cfg["settings"]
+    settings = BuildSettings(seed=int(cfg["seed"]), texture_size=int(s["texture_size_requested"]),
+                             element_budget=int(s["element_budget"]))
+    note = (f"reconstruído com a versão atual a partir da interpretação da IA feita no Colab "
+            f"(versão {cfg['version']}, {cfg['generated_at'][:10]}); a IA não foi chamada de novo")
+    result = generate(cfg["parameters"], settings, mode=cfg["mode"], description=cfg["description"],
+                      ai_info=cfg["ai"], manual_adjustments=cfg["manual_adjustments"], extra_notes=[note],
+                      base_name="tyranos_rex")
+    save_outputs(result, folder)
+    print(result.validation.summary_pt().splitlines()[0], "|", "; ".join(result.notes))
 
 
 VARIANTS = [
@@ -62,7 +83,7 @@ def gallery() -> None:
     tiles = []
     for label, adj in VARIANTS:
         spec, _notes = apply_adjustments(default_spec(), adj)
-        res = generate(spec, BuildSettings(seed=7, element_budget=64), mode="procedural")
+        res = generate(spec, BuildSettings(seed=7, element_budget=96), mode="procedural")
         assert res.validation.ok, res.validation.summary_pt()
         mesh = build_mesh(res.bbmodel)
         img = Image.fromarray(render(mesh, res.texture, View("p", (0.85, 0.4, -0.85), ortho=False, fov=26), size=420))
@@ -81,4 +102,5 @@ def gallery() -> None:
 
 if __name__ == "__main__":
     example()
+    white_from_colab()
     gallery()

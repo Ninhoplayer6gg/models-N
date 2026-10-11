@@ -26,9 +26,10 @@ from .bbmodel import (
     sanitize_identifier,
 )
 from .builders import build_model
+from .geo import GEO_FORMAT_VERSION, GECKOLIB_PATHS, bbmodel_to_geo, geo_dumps, validate_geo
 from .model import Model
 from .spec import SPEC_VERSION, BuildSettings, SpecValidationError, normalize_spec, validate_spec
-from .texture import paint_texture
+from .texture import CUTOUT_MATERIALS, paint_texture
 from .validate import ValidationReport, validate_bbmodel
 
 MODES = ("ia", "procedural")
@@ -48,6 +49,8 @@ class GenerationResult:
     config: dict[str, Any]
     base_name: str
     timings: dict[str, float] = field(default_factory=dict)
+    geo: dict[str, Any] = field(default_factory=dict)  # geometria para o GeckoLib (Minecraft Java)
+    geo_text: str = ""
 
     @property
     def ok(self) -> bool:
@@ -80,6 +83,7 @@ def generate(
 
     t0 = time.perf_counter()
     model, notes, atlas, spec = _build_and_pack(spec, settings)
+    notes += color_notes(spec)
     model.meta["seed"] = settings.seed
     t1 = time.perf_counter()
     if atlas.upgraded:
@@ -92,7 +96,13 @@ def generate(
     png = png_bytes(texture)
     name = base_name or sanitize_identifier(spec.get("name") or "trex")
     bb = model_to_bbmodel(model, png, f"{name}.png", identifier=name)
-    report = validate_bbmodel(bb, element_budget=settings.element_budget, texture=texture)
+    cutout = {c.uuid for c in model.iter_cubes() if c.material in CUTOUT_MATERIALS}
+    report = validate_bbmodel(bb, element_budget=settings.element_budget, texture=texture, cutout=cutout)
+    geo = bbmodel_to_geo(bb)
+    geo_text = geo_dumps(geo)
+    report.checks.append("geo.json do GeckoLib")
+    for problem in validate_geo(geo, (int(texture.shape[1]), int(texture.shape[0]))):
+        report.error("geckolib", problem)
     t3 = time.perf_counter()
     notes = list(extra_notes or []) + notes
 
@@ -110,6 +120,7 @@ def generate(
         report=report,
         notes=notes,
         name=name,
+        geo_text=geo_text,
     )
     return GenerationResult(
         spec=spec,
@@ -124,7 +135,25 @@ def generate(
         config=config,
         base_name=name,
         timings={"construcao_s": t1 - t0, "uv_textura_s": t2 - t1, "exportacao_validacao_s": t3 - t2},
+        geo=geo,
+        geo_text=geo_text,
     )
+
+
+def color_notes(spec: dict[str, Any]) -> list[str]:
+    """Avisos quando a barriga quase não se distingue do corpo (contraste baixo)."""
+    from .palette import contrast_ratio, hex_to_rgb, luminance, rgb_to_hex, shade
+
+    colors = spec["colors"]
+    prim, belly = hex_to_rgb(colors["primary"]), hex_to_rgb(colors["belly"])
+    ratio = contrast_ratio(prim, belly)
+    if ratio >= 1.15:
+        return []
+    suggestion = "#e6d6a8" if luminance(prim) > 0.6 else rgb_to_hex(shade(prim, 3))
+    return [
+        f"barriga {colors['belly']} quase igual à cor principal {colors['primary']} (contraste {ratio:.2f}); "
+        f"para destacar o ventre, use cor_barriga na Etapa 3 (ex.: {suggestion})"
+    ]
 
 
 def _build_and_pack(spec: dict[str, Any], settings: BuildSettings):
@@ -154,7 +183,7 @@ def _sha256(data: bytes) -> str:
 
 
 def build_config(*, spec, settings, mode, description, ai_info, manual_adjustments, model, bbmodel, png, atlas, report,
-                 notes, name) -> dict[str, Any]:
+                 notes, name, geo_text) -> dict[str, Any]:
     from .bbmodel import dumps
 
     return {
@@ -189,9 +218,11 @@ def build_config(*, spec, settings, mode, description, ai_info, manual_adjustmen
         "files": {
             "bbmodel": f"{name}.bbmodel",
             "texture": f"{name}.png",
+            "geo": f"{name}.geo.json",
             "sha256": {
                 f"{name}.bbmodel": _sha256(dumps(bbmodel).encode("utf-8")),
                 f"{name}.png": _sha256(png),
+                f"{name}.geo.json": _sha256(geo_text.encode("utf-8")),
             },
         },
         "blockbench": {
@@ -199,7 +230,19 @@ def build_config(*, spec, settings, mode, description, ai_info, manual_adjustmen
             "model_format": MODEL_FORMAT,
             "box_uv": True,
             "reference_version": BLOCKBENCH_REFERENCE_VERSION,
-            "note": "Projeto editável do Blockbench. Para o Minecraft, exporte no Blockbench (ex.: Bedrock Geometry).",
+            "note": "Projeto editável do Blockbench (o jogo não lê .bbmodel).",
+        },
+        "minecraft_java": {
+            "geckolib_model": f"{name}.geo.json",
+            "geckolib_model_format": f"geometria Bedrock {GEO_FORMAT_VERSION} (a mesma exportação do Blockbench/plugin GeckoLib)",
+            "texture": f"{name}.png",
+            "paths_in_mod": {
+                key: {k: v.format(modid="<modid>", name=name) for k, v in paths.items()}
+                for key, paths in GECKOLIB_PATHS.items()
+            },
+            "animations": None,
+            "mod_jar": None,
+            "status": "modelo e textura prontos para o GeckoLib; faltam as animações e o mod (.jar) que registra a criatura",
         },
         "notes": notes,
         "reproduce": "Use 'parameters', 'seed' e 'settings' no modo procedural para obter o mesmo .bbmodel e o mesmo .png.",

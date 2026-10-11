@@ -1,0 +1,415 @@
+{
+  "model": "examples/trex-branco-ia/tyranos_rex.bbmodel",
+  "blockbench_url": "http://127.0.0.1:8765/index.html",
+  "blockbench_version": "5.2.2",
+  "format": "bedrock",
+  "format_name": "Bedrock Entity",
+  "box_uv": true,
+  "texture_size": [
+    256,
+    256
+  ],
+  "model_identifier": "tyranos_rex",
+  "cubes": 55,
+  "groups": 23,
+  "root_nodes": 1,
+  "texture": {
+    "name": "tyranos_rex.png",
+    "width": 256,
+    "height": 256,
+    "uv_width": 256,
+    "uv_height": 256,
+    "loaded": true,
+    "error": 0
+  },
+  "validator_warnings": [],
+  "validator_errors": [],
+  "message_boxes": [],
+  "world_box": {
+    "min": [
+      -10.961328027613568,
+      -0.2457621589854946,
+      -45.874999614044015
+    ],
+    "max": [
+      10.961328027613568,
+      44.541291645043884,
+      38.017207123559835
+    ]
+  },
+  "group_list": [
+    {
+      "name": "root",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "parent": null,
+      "children": 1
+    },
+    {
+      "name": "body",
+      "origin": [
+        0,
+        24.5,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "parent": "root",
+      "children": 6
+    },
+    {
+      "name": "torso",
+      "origin": [
+        0,
+        27.5,
+        -4
+      ],
+      "rotation": [
+        -4.5,
+        0,
+        0
+      ],
+      "parent": "body",
+      "children": 6
+    },
+    {
+      "name": "neck",
+      "origin": [
+        0,
+        29.5,
+        -14.5
+      ],
+      "rotation": [
+        37.5,
+        0,
+        0
+      ],
+      "parent": "torso",
+      "children": 3
+    },
+    {
+      "name": "head",
+      "origin": [
+        0,
+        30,
+        -21
+      ],
+      "rotation": [
+        -31,
+        0,
+        0
+      ],
+      "parent": "neck",
+      "children": 10
+    },
+    {
+      "name": "jaw",
+      "origin": [
+        0,
+        27.5,
+        -20
+      ],
+      "rotation": [
+        -10.5,
+        0,
+        0
+      ],
+      "parent": "head",
+      "children": 4
+    },
+    {
+      "name": "arm_right",
+      "origin": [
+        6,
+        22,
+        -13
+      ],
+      "rotation": [
+        26.5,
+        0,
+        12
+      ],
+      "parent": "torso",
+      "children": 2
+    },
+    {
+      "name": "forearm_right",
+      "origin": [
+        7,
+        18.5,
+        -13
+      ],
+      "rotation": [
+        -57,
+        0,
+        0
+      ],
+      "parent": "arm_right",
+      "children": 3
+    },
+    {
+      "name": "arm_left",
+      "origin": [
+        -6,
+        22,
+        -13
+      ],
+      "rotation": [
+        26.5,
+        0,
+        -12
+      ],
+      "parent": "torso",
+      "children": 2
+    },
+    {
+      "name": "forearm_left",
+      "origin": [
+        -7,
+        18.5,
+        -13
+      ],
+      "rotation": [
+        -57,
+        0,
+        0
+      ],
+      "parent": "arm_left",
+      "children": 3
+    },
+    {
+      "name": "leg_right",
+      "origin": [
+        7,
+        24.5,
+        0
+      ],
+      "rotation": [
+        25,
+        0,
+        0
+      ],
+      "parent": "body",
+      "children": 2
+    },
+    {
+      "name": "shin_right",
+      "origin": [
+        7,
+        15,
+        0.5
+      ],
+      "rotation": [
+        -60,
+        0,
+        0
+      ],
+      "parent": "leg_right",
+      "children": 3
+    },
+    {
+      "name": "metatarsus_right",
+      "origin": [
+        7,
+        5,
+        0
+      ],
+      "rotation": [
+        48,
+        0,
+        0
+      ],
+      "parent": "shin_right",
+      "children": 2
+    },
+    {
+      "name": "foot_right",
+      "origin": [
+        7,
+        -1,
+        0
+      ],
+      "rotation": [
+        -13,
+        0,
+        0
+      ],
+      "parent": "metatarsus_right",
+      "children": 7
+    },
+    {
+      "name": "leg_left",
+      "origin": [
+        -7,
+        24.5,
+        0
+      ],
+      "rotation": [
+        25,
+        0,
+        0
+      ],
+      "parent": "body",
+      "children": 2
+    },
+    {
+      "name": "shin_left",
+      "origin": [
+        -7,
+        15,
+        0.5
+      ],
+      "rotation": [
+        -60,
+        0,
+        0
+      ],
+      "parent": "leg_left",
+      "children": 3
+    },
+    {
+      "name": "metatarsus_left",
+      "origin": [
+        -7,
+        5,
+        0
+      ],
+      "rotation": [
+        48,
+        0,
+        0
+      ],
+      "parent": "shin_left",
+      "children": 2
+    },
+    {
+      "name": "foot_left",
+      "origin": [
+        -7,
+        -1,
+        0
+      ],
+      "rotation": [
+        -13,
+        0,
+        0
+      ],
+      "parent": "metatarsus_left",
+      "children": 7
+    },
+    {
+      "name": "tail_1",
+      "origin": [
+        0,
+        27,
+        3
+      ],
+      "rotation": [
+        5,
+        0,
+        0
+      ],
+      "parent": "body",
+      "children": 2
+    },
+    {
+      "name": "tail_2",
+      "origin": [
+        0,
+        27,
+        11
+      ],
+      "rotation": [
+        -2,
+        0,
+        0
+      ],
+      "parent": "tail_1",
+      "children": 2
+    },
+    {
+      "name": "tail_3",
+      "origin": [
+        0,
+        27,
+        19
+      ],
+      "rotation": [
+        -3,
+        0,
+        0
+      ],
+      "parent": "tail_2",
+      "children": 2
+    },
+    {
+      "name": "tail_4",
+      "origin": [
+        0,
+        27,
+        26
+      ],
+      "rotation": [
+        -2.5,
+        0,
+        0
+      ],
+      "parent": "tail_3",
+      "children": 2
+    },
+    {
+      "name": "tail_5",
+      "origin": [
+        0,
+        27,
+        32
+      ],
+      "rotation": [
+        -2.5,
+        0,
+        0
+      ],
+      "parent": "tail_4",
+      "children": 1
+    }
+  ],
+  "console_errors_after_load": [],
+  "boot_errors_ignored": 7,
+  "screenshots": {
+    "perspectiva": "examples/trex-branco-ia/blockbench/bb_perspectiva.png",
+    "lado_direito": "examples/trex-branco-ia/blockbench/bb_lado_direito.png",
+    "frente": "examples/trex-branco-ia/blockbench/bb_frente.png",
+    "topo": "examples/trex-branco-ia/blockbench/bb_topo.png",
+    "traseira": "examples/trex-branco-ia/blockbench/bb_traseira.png"
+  },
+  "roundtrip_differences": [],
+  "bedrock_export": {
+    "format_version": "1.12.0",
+    "identifier": "geometry.tyranos_rex",
+    "texture_width": 256,
+    "texture_height": 256,
+    "bones": 23,
+    "cubes": 55
+  },
+  "visible_box_file": [
+    6,
+    4.5,
+    1.75
+  ],
+  "visible_box_blockbench": [
+    6,
+    4.5,
+    1.75
+  ]
+}

@@ -1,7 +1,92 @@
-# Relatório de testes — Ninho Model Studio v0.1.0
+# Relatório de testes — Ninho Model Studio
 
-Data: 11/10/2026. Este relatório diz **exatamente** o que foi testado, como, e o que **não**
-pôde ser testado.
+Este relatório diz **exatamente** o que foi testado, como, e o que **não** pôde ser testado.
+
+## Atualização v0.3.0 — T-rex mais bonito
+
+Pedido do usuário: "modelos mais bonitos, para Minecraft Java". Mudou a forma (cabeça com
+sobrancelhas, bochechas, topo arredondado e ponte nasal; dentes de cima por fora da mandíbula,
+com gengiva; língua; garganta; dorso e quadril arredondados; coxa robusta e panturrilha; pés
+com três dedos separados e garras; corpo, pescoço e cauda mais robustos) e a textura (sombra de
+contato calculada lançando raios contra os próprios cubos, luz na borda de cima das peças, olho
+com pupila em fenda e brilho, dentes recortados com transparência, listras mais fortes com
+borda irregular). Imagem antes × depois no Blockbench: `docs/img/antes_depois_v03.png`.
+
+| Verificação | Resultado |
+|---|---|
+| Testes automáticos | **158 passaram** com torch + transformers; **154 passaram e 2 foram pulados** sem torch |
+| Exemplos no Blockbench 5.2.2 (`examples/*/blockbench/`) | 55 cubos, 23 ossos; **0 avisos e 0 erros** do validador; ida e volta idêntica; exportação Bedrock correta; `visible_box` igual ao do Blockbench (`[6, 4.5, 1.75]`); silhuetas IoU 0,985/0,997/0,989 (verde) e 0,980/0,998/0,988 (branco) |
+| Pose de teste dentro do Blockbench | cada parte gira no pivô certo, dentes acompanham a mandíbula e dedos acompanham o pé; IoU 0,978 com a prévia do Ninho |
+| 9 variantes no Blockbench | 0 avisos/erros, ida e volta idêntica, IoU entre 0,96 e 1,00 |
+| `.geo.json` (12 casos) | idêntico byte a byte à exportação do Blockbench; reaberto sozinho reproduz o projeto; capturas diferem em no máximo 0,015% dos pixels |
+| Leitores do GeckoLib 4.9.3 e 5.5.7 | os 12 carregam sem erro nem aviso; 15.360 cantos de face com posição e UV iguais aos do Blockbench em cada versão; 5 defeitos plantados acusados nas duas |
+| Faces no mesmo plano (piscam no jogo) | nova conferência no validador: **zero** nos exemplos, nas variantes e nos testes (inclusive proporções extremas e boca fechada) |
+
+**Avaliação visual:** feita por mim nas capturas do Blockbench e nas prévias, de vários ângulos,
+inclusive closes da cabeça. "Mais bonito" é subjetivo: o usuário ainda não viu esta versão.
+
+## Atualização v0.2.0 — modelo para o Minecraft Java (GeckoLib)
+
+*Os números desta seção são da v0.2.0 (T-rex antigo); os atuais estão na seção v0.3.0 e nos
+arquivos `docs/verificacao-*.json`.*
+
+Cada geração agora traz `<nome>.geo.json` (formato Bedrock `1.12.0`, que o GeckoLib lê),
+escrito por `ninho_studio/geo.py`. Guia: [MINECRAFT-JAVA.md](MINECRAFT-JAVA.md).
+
+| Verificação | Como | Resultado |
+|---|---|---|
+| Igual ao exportador do Blockbench | `tests/test_geo.py` compara com os `.geo.json` exportados pelo Blockbench 5.2.2 para os 2 exemplos; `tools/verify_geckolib.py` pede a exportação ao Blockbench em 12 casos (2 exemplos, 9 variantes, 1 caso sintético com cubo girado, cubo e osso espelhados e cubo inflado) | **idêntico byte a byte** nos 12 |
+| `.geo.json` sozinho reproduz o modelo | o mesmo script reabre o `.geo.json` com o `.png` num projeto novo do Blockbench e compara com o projeto original | ossos, pivôs, rotações, cubos, UV das faces e caixa do modelo **iguais**; reexportar dá o mesmo texto; 0 erros do validador; capturas com até 0,11% de pixels diferentes, só onde faces de cubos diferentes ficam no mesmo plano (achado abaixo) |
+| Leitores do GeckoLib | `tools/geckolib_loader_check.py` compila do código-fonte o leitor do **GeckoLib 4.9.3** (Minecraft 1.21.1) e do **GeckoLib 5.5.7** (Minecraft 26.3), com substitutos mínimos das classes do Minecraft | os 12 arquivos carregam **sem erro nem aviso**; ossos/cubos iguais; **9.648 cantos de face** com posição e UV iguais aos do Blockbench, nas duas versões |
+| Controle negativo | 5 defeitos plantados (UV deslocado 1 px, sinal de rotação, X sem espelhar na origem e no pivô, espelho indevido) | **todos acusados** nas duas versões |
+| Pastas do mod | lidas no código do GeckoLib (`GeckoLibResources`, `GeckoLibCache`, `DefaultedGeoModel`) | GeckoLib 5: `geckolib/models/`; GeckoLib 4: `geo/` |
+
+**Achado:** as poucas diferenças nas capturas vêm de faces de cubos diferentes no mesmo plano e
+viradas para o mesmo lado. Uma busca na geometria dos 12 casos encontrou isso no cotovelo
+(braço/antebraço) em todos eles. Em alguns casos apareceu também nos dentes (detalhe baixo), entre
+o pescoço e a mandíbula, nas sobrancelhas e nas garras dos pés. A ordem de desenho decide qual face
+aparece, então isso pode "piscar" no jogo. É um defeito do modelo, não da exportação.
+**Corrigido na v0.3.0** (ver acima).
+
+**Não testado:** o T-rex dentro do Minecraft (precisa do mod `.jar`, ainda não feito) e as
+animações (ainda não feitas). Os repositórios do Fabric, NeoForge, Forge e do Minecraft estão
+bloqueados neste ambiente, então nenhum mod pode ser compilado aqui.
+
+## Atualização v0.1.1 — primeiro teste real da IA (Colab, feito pelo usuário)
+
+O usuário rodou o notebook v0.1.0 no Google Colab e enviou o `.zip` gerado
+(`examples/trex-branco-ia/colab_original/tyranos_rex.json` guarda a configuração original).
+
+| Item | Resultado registrado no `.json` |
+|---|---|
+| Ambiente | GPU **T4** (`cuda`, float16), transformers **5.18.0**, torch **2.11.0+cu130** |
+| Modelo | Qwen/Qwen2.5-Coder-1.5B-Instruct, carregado em **33,6 s** |
+| Interpretação | **11,1 s**, 277 tokens, **JSON válido na 1ª tentativa** |
+| Descrição | "Um T-rex branco musculoso, cabeça grande, listras escuras nas costas, barriga creme e olhos vermelhos" |
+| Acertos da IA | branco (`#ffffff`), olhos vermelhos (`#ff6347`), listras escuras (`stripes`, `#333333`), cabeça grande (`head_size` 1.4), barriga creme (`#fffbe8`, porém quase branca) |
+| Erros da IA | ignorou "musculoso" (`body_bulk` ficou 1.0); copiou as proporções do 1º exemplo do prompt |
+
+Problemas encontrados no **nosso** código (não na IA) e corrigidos na v0.1.1:
+
+1. **Branco saía cinza:** a rampa de tons escurecia 15% por tom e a microtextura multiplicava
+   as cores. Agora cores quase brancas escurecem em passos menores e com sombra fria
+   (azul-acinzentada), e toda a pintura da pele trabalha por tons da paleta (ajustes de
+   textura usam só 40% do caminho até o tom vizinho). O verde padrão ficou visualmente igual.
+2. **Barriga sem contraste:** aviso automático quando a barriga quase não se distingue do
+   corpo (contraste < 1,15), sugerindo uma cor.
+3. **Textura subia para 256 sem necessidade:** novo empacotador que encaixa cubos nos cantos
+   vazios do box UV (forma exata, tabela de somas acumuladas). O caso do teste (cabeça 1,4×)
+   e as variantes de 42 e 46 cubos agora cabem em 128×128.
+4. **IA copiando o exemplo:** exemplos do prompt trocados por descrições diferentes da
+   descrição padrão do notebook (incluindo "musculoso") e nova **conferência de palavras**:
+   se a descrição pede algo (musculoso, cabeça grande, cauda longa, rugindo, gigante...) que
+   o JSON da IA não reflete, o notebook avisa qual controle ajustar — sem corrigir sozinho.
+   *Esse novo prompt ainda não foi testado com o Qwen real.*
+
+Verificação depois das correções: `examples/trex-branco-ia/` reconstruído a partir da resposta
+da IA do Colab (sem chamar a IA de novo) abre no Blockbench 5.2.2 com 0 avisos/erros,
+textura 128, ida e volta idêntica e exportação Bedrock correta (IoU 0,97/1,00/0,97).
+Antes/depois em `examples/trex-branco-ia/antes_depois.png`.
 
 ## Ambiente usado
 
@@ -15,8 +100,8 @@ pôde ser testado.
 
 | Ambiente | Resultado |
 |---|---|
-| Python do sistema (sem torch) | **118 passaram, 2 pulados** (os 2 dependem de torch/transformers) |
-| Ambiente com torch + transformers | **122 passaram** |
+| Python do sistema (sem torch) | **154 passaram, 2 pulados** (os 2 módulos que dependem de torch/transformers) |
+| Ambiente com torch + transformers | **158 passaram** |
 
 O que cobrem:
 
@@ -41,6 +126,15 @@ O que cobrem:
   textura, textura inexistente, nome de osso duplicado, cubo fora do outliner, referência
   inexistente, grupo repetido, versão errada, orçamento, UV incoerente com o box UV, face sem
   pintura, pivô longe da geometria, modelo abaixo do chão.
+* `test_geo.py` — `.geo.json` **idêntico byte a byte** ao exportado pelo Blockbench 5.2.2 para os
+  2 exemplos; sinais e convenções (X espelhado, rotações X/Y invertidas, pivôs, box UV); o
+  `.geo.json` lido de volta dá o mesmo projeto; cubos girados/espelhados/inflados; regras de
+  JSON do Blockbench (números, cubos em uma linha, escapes); a conferência do GeckoLib acusa
+  ossos repetidos, pai inexistente, ciclo, tamanho não inteiro, UV fora da textura e versão
+  errada; `.geo.json` dentro do `.zip` com hash no `.json`.
+* `test_coplanar.py` — área de sobreposição; só faces coplanares viradas para o mesmo lado
+  contam; o construtor não deixa nenhuma (5 combinações, inclusive extremas e boca fechada); o
+  validador avisa quando um cubo duplicado cria faces coincidentes.
 * `test_mesh_render.py` — malha lida do `.bbmodel` bate com o modelo; vistas renderizam; o
   olho aparece na vista lateral; folhas de imagens e visualizador HTML.
 * `test_ai.py` — extração de JSON (texto em volta, cercas de código, `<think>`, chaves dentro
@@ -68,24 +162,24 @@ O que cobrem:
   localmente com `node build.js --target=web`, servido em `127.0.0.1` e aberto num Chromium
   sem tela (Playwright 1.56.1, WebGL por SwiftShader). Ferramenta: `tools/blockbench_check.mjs`.
 * **Exemplo T-rex verde** (`examples/trex-verde/blockbench/`):
-  * abriu como **`bedrock`**, 32 cubos, 22 grupos, textura 128×128 carregada;
+  * abriu como **`bedrock`**, 55 cubos, 23 grupos, textura 128×128 carregada (v0.3.0);
   * **validador interno do Blockbench: 0 avisos e 0 erros**; nenhuma caixa de mensagem; nenhum
     erro de console depois de abrir;
   * reabrir e salvar de novo (`Codecs.project.compile`) **não mudou** cubos, UVs, grupos nem
     a hierarquia;
-  * **exportação Bedrock pelo próprio Blockbench** funcionou (`geometry.trex_verde`, 22 ossos,
-    32 cubos, `trex_verde.geo.json`);
-  * `visible_box` gravado = o calculado pelo Blockbench (`[7, 3.5, 1.25]`);
+  * **exportação Bedrock pelo próprio Blockbench** funcionou (`geometry.trex_verde`, 23 ossos,
+    55 cubos, `trex_verde.geo.json`);
+  * `visible_box` gravado = o calculado pelo Blockbench (`[6, 4.5, 1.75]`);
   * capturas de 5 ângulos; **IoU das silhuetas** (Blockbench × prévia do Ninho):
-    lado 0,981 · frente 0,978 · topo 0,989 (as diferenças são bordas de 1 px);
+    lado 0,985 · frente 0,997 · topo 0,989 (as diferenças são bordas de 1 px);
   * **articulações:** uma pose de teste (mandíbula, pescoço, cabeça, pernas, canela, cauda,
     braço e antebraço) aplicada dentro do Blockbench move cada parte em torno do pivô certo,
-    sem peças soltas; a mesma pose na prévia do Ninho dá IoU 0,985
+    sem peças soltas; a mesma pose na prévia do Ninho dá IoU 0,978
     (`comparacao_pose.png`).
-* **8 variantes** (galeria, 3 níveis de detalhe, textura 256, espinhos, chifres, penas,
-  cicatrizes): todas com 0 avisos/erros do validador do Blockbench, ida e volta idêntica,
-  exportação Bedrock correta e IoU entre 0,96 e 0,999
-  (`docs/verificacao-blockbench-variantes.json`).
+* **9 variantes** (galeria, 3 níveis de detalhe, textura 256, espinhos, chifres, penas,
+  cicatrizes e o caso branco com cabeça 1,4×): todas com 0 avisos/erros do validador do
+  Blockbench, ida e volta idêntica, exportação Bedrock correta e IoU entre 0,96 e 1,00 (v0.3.0)
+  (`docs/verificacao-blockbench-variantes.json`, gerado por `tools/verify_variants.py`).
 * Inspeção visual feita por mim nas capturas: geometria, textura nas faces certas (olhos nas
   laterais, ventre claro embaixo, boca vermelha, dentes, dedos) e postura iguais à prévia.
 
@@ -103,21 +197,23 @@ dentro da saída do Colab.
 
 ## 4. O que NÃO foi testado
 
-* **O Qwen real.** O acesso ao Hugging Face estava bloqueado, então os pesos do
-  Qwen2.5-Coder-1.5B-Instruct não foram baixados: **a qualidade da interpretação da IA não foi
-  medida**, nem o tempo real na GPU T4/CPU do Colab. Foi testado o código ao redor (carregamento
-  e geração com `transformers`, validação, reparo, mensagens). Primeiro passo recomendado:
-  rodar a Etapa 2 + 4 no Colab com algumas descrições e anotar acertos/erros.
-* **O notebook dentro do Google Colab.** Ele foi executado num kernel Jupyter local. Não foram
-  testados aqui: a renderização dos formulários do Colab no celular, `files.download`,
-  montagem do Google Drive e os limites de sessão.
-* **Minecraft.** O `.geo.json` exportado pelo Blockbench não foi carregado no jogo.
+* **O Qwen real neste ambiente de desenvolvimento** (Hugging Face bloqueado). A IA real foi
+  rodada **uma vez, pelo usuário, no Colab** (seção de atualização acima): um único caso não mede
+  a taxa de acerto. O prompt novo da v0.1.1 ainda não rodou com o Qwen real. Próximo passo:
+  10–20 descrições variadas, anotando acertos e erros.
+* **Partes do Colab que o teste do usuário não registra:** o `.zip` mostra que as Etapas 1 a 5
+  funcionaram (inclusive o download), mas não diz como ficaram os formulários no celular, se o
+  visualizador 3D abriu na saída do Colab, nem o comportamento com o Google Drive e os limites
+  de sessão.
+* **Minecraft.** Nenhum arquivo foi carregado no jogo. O `.geo.json` foi conferido no Blockbench
+  e nos leitores do GeckoLib 4 e 5 fora do Minecraft (seção v0.2.0).
 
 ## 5. Exemplo T-rex verde
 
 * Gerado no **modo procedural** (parâmetros escritos à mão), seed 42, textura 128, orçamento
-  64 — *não* pela IA, pelo motivo acima. Reproduzível com `python tools/make_example.py`
+  96 — *não* pela IA, pelo motivo acima. Reproduzível com `python tools/make_example.py`
   (mesmos bytes de `.bbmodel` e `.png`).
-* 32 cubos, 22 ossos, 75% da área do atlas reservada (51% em pixels de faces), validação do
-  Ninho sem erros nem avisos.
-* Geração: ~0,05–0,07 s; arquivos + prévias: ~0,3 s (CPU deste ambiente).
+* 55 cubos, 23 ossos, 64% do atlas com pixels de faces, validação do Ninho sem erros nem
+  avisos (inclusive zero faces no mesmo plano).
+* Geração: ~1,3 s, quase toda na sombra de contato (raios contra os cubos); arquivos + prévias:
+  ~0,5 s (CPU deste ambiente).

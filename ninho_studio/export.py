@@ -21,6 +21,7 @@ Arquivos deste pacote
 {name}.bbmodel   Projeto EDITÁVEL do Blockbench (formato {fmt}, versão do arquivo {ver}),
                  com cubos, grupos (ossos), pivôs, UV e a textura embutida.
 {name}.png       Textura ({tex}x{tex}) gerada de forma PROCEDURAL (regras + seed, sem IA).
+{name}.geo.json  Modelo para o Minecraft Java com o mod GeckoLib (geometria Bedrock {geo_ver}).
 {name}.json      Configuração: modo ({mode}), descrição, parâmetros, seed, versão e validação.
 {name}_vistas.png      Vistas: perspectiva, lado, frente, topo, traseira e ventre.
 {name}_atlas.png       Atlas UV ampliado com o nome de cada cubo e a letra de cada face
@@ -32,10 +33,21 @@ Arquivos deste pacote
 Projeto editável x formatos do Minecraft
 ----------------------------------------
 O .bbmodel é o arquivo de trabalho do Blockbench; o jogo não lê .bbmodel.
-Para usar no Minecraft, abra o .bbmodel no Blockbench (app ou https://web.blockbench.net)
-e exporte para o formato do destino:
-  * Bedrock: File > Export > Export Bedrock Geometry (.geo.json) + a textura .png.
-  * GeckoLib / Java: exportadores específicos ficam para uma etapa posterior.
+
+Minecraft Java (GeckoLib): use {name}.geo.json + {name}.png. É o mesmo arquivo que o
+Blockbench exporta em File > Export > Export Bedrock Geometry (o plugin do GeckoLib usa
+esse exportador). Dentro de um mod, as pastas são:
+  GeckoLib 5 (Minecraft 1.21.5 em diante):
+    assets/<modid>/geckolib/models/entity/{name}.geo.json
+  GeckoLib 4 (Minecraft 1.20.1 a 1.21.4):
+    assets/<modid>/geo/entity/{name}.geo.json
+  Textura (as duas versões): assets/<modid>/textures/entity/{name}.png
+Atenção: só esses arquivos não colocam a criatura no jogo. No Java, uma criatura nova
+precisa de um mod (.jar) que a registre, junto com o GeckoLib instalado. As animações e
+o mod ainda não fazem parte deste pacote.
+
+Bedrock: o mesmo .geo.json serve como geometria de entidade (pasta models/entity do
+pacote de recursos).
 
 A criatura olha para -Z (norte), com o lado direito em +X, pés em Y=0.
 """
@@ -56,6 +68,7 @@ def save_outputs(result: GenerationResult, out_dir: str, previews: bool = True, 
     paths["bbmodel"] = write_bytes(f"{name}.bbmodel", dumps(result.bbmodel).encode("utf-8"))
     paths["png"] = write_bytes(f"{name}.png", result.png)
     paths["json"] = write_bytes(f"{name}.json", (json.dumps(result.config, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+    paths["geo"] = write_bytes(f"{name}.geo.json", result.geo_text.encode("utf-8"))
 
     mesh = build_mesh(result.bbmodel)
     if previews:
@@ -77,12 +90,13 @@ def save_outputs(result: GenerationResult, out_dir: str, previews: bool = True, 
         ver=result.config["blockbench"]["format_version"],
         tex=result.atlas.size,
         mode=result.config["mode"],
+        geo_ver=result.geo.get("format_version", ""),
     )
     paths["leia_me"] = write_bytes("LEIA-ME.txt", readme.encode("utf-8"))
 
     zip_path = os.path.join(out_dir, f"{name}.zip")
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        for key in ("bbmodel", "png", "json", "vistas", "atlas", "esqueleto", "html", "leia_me"):
+        for key in ("bbmodel", "png", "geo", "json", "vistas", "atlas", "esqueleto", "html", "leia_me"):
             if key in paths:
                 zf.write(paths[key], arcname=os.path.basename(paths[key]))
     paths["zip"] = zip_path

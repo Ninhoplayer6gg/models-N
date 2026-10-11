@@ -11,9 +11,10 @@
 
 **Por que `bedrock`:** é um formato de entidade do Minecraft com ossos (grupos) e pivôs,
 box UV, uma textura por modelo e rotação em qualquer ângulo — e o próprio Blockbench
-exporta dele para `.geo.json` (Bedrock), base também usada pelo GeckoLib. Toda rotação do
-modelo fica nos **ossos**; nenhum cubo é girado, o que também facilita converter para
-formatos Java (que não giram cubos individuais).
+exporta dele para `.geo.json` (Bedrock), base também usada pelo GeckoLib. A postura fica nas
+rotações dos **ossos**; o único cubo girado é cada dedo do pé (aberto em leque em torno da
+própria base, ±12,5°), o que o Bedrock e o GeckoLib aceitam. Faces de cubos diferentes que
+ficariam no mesmo plano recebem `inflate` de 0,05 px (às vezes 0,1) para não piscarem.
 
 A documentação oficial ([The .bbmodel format](https://www.blockbench.net/wiki/docs/bbmodel/),
 fonte em `JannisX11/blockbench.net/content/docs/bbmodel.md`) diz que **não existe uma
@@ -78,8 +79,11 @@ Blockbench ignora ao abrir.
 |---|---|---|
 | `.bbmodel` | Projeto **editável** do Blockbench (cubos, ossos, pivôs, UV, textura embutida). O jogo não lê este arquivo. | Ninho Model Studio |
 | `.png` | Textura (a mesma embutida no `.bbmodel`). Vai junto com a geometria no jogo. | Ninho Model Studio |
-| `.geo.json` | Geometria **Bedrock** (e base do GeckoLib). | Blockbench: *File → Export → Export Bedrock Geometry* |
-| Java/GeckoLib/animações | Etapa futura | — |
+| `.geo.json` | Geometria para o **GeckoLib (Minecraft Java)** e para o **Bedrock** (formato `1.12.0`). | Ninho Model Studio (`ninho_studio/geo.py`, tradução de `Codecs.bedrock.compile` do Blockbench) |
+| Animações e mod Java (`.jar`) | Próxima etapa ([MINECRAFT-JAVA.md](MINECRAFT-JAVA.md)) | — |
 
-O exemplo `examples/trex-verde/blockbench/trex_verde.geo.json` foi exportado **pelo próprio
-Blockbench 5.2.2** a partir do nosso `.bbmodel`, como prova de que a conversão funciona.
+Os arquivos `examples/*/blockbench/*.geo.json` foram exportados **pelo próprio Blockbench 5.2.2**
+a partir dos nossos `.bbmodel`; o `.geo.json` do Ninho é idêntico a eles byte a byte
+(`tests/test_geo.py`). Convenções do exportador Bedrock: o X é espelhado (`pivot[0]` e a origem
+dos cubos trocam de sinal) e as rotações em X e Y trocam de sinal; números com no máximo 5
+casas decimais; cubos com box UV escritos numa linha só.

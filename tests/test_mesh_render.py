@@ -20,7 +20,7 @@ def test_mesh_counts_and_bones(default_result):
 def test_mesh_bounds_match_model(default_result):
     mesh = build_mesh(default_result.bbmodel)
     lo, hi = mesh.bounds
-    mlo, mhi = default_result.model.world_bounds()
+    mlo, mhi = default_result.model.world_bounds(inflated=True)
     assert np.allclose(lo, mlo) and np.allclose(hi, mhi)
 
 

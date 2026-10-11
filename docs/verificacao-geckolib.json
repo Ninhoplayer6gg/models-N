@@ -1,0 +1,529 @@
+{
+ "blockbench": "5.2.2 (build web oficial compilada do código-fonte, commit 7c92e27, aberta em Chromium sem tela)",
+ "ninho_model_studio": "0.3.0",
+ "data": "2026-10-11",
+ "o_que_foi_conferido": [
+  "o texto exportado pelo Blockbench (Codecs.bedrock.compile, o mesmo usado pelo plugin do GeckoLib) é idêntico ao .geo.json do Ninho",
+  "o .geo.json aberto sozinho (importação Bedrock) com o .png reproduz ossos, pivôs, rotações, cubos, UV das faces e caixa do modelo do projeto original",
+  "reexportar depois de importar dá o mesmo texto",
+  "capturas do projeto e do .geo.json com a mesma câmera (fração de pixels diferentes)"
+ ],
+ "casos": [
+  {
+   "caso": "exemplo T-rex verde",
+   "cubos": 55,
+   "ossos": 23,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 55,
+    "groups": 23,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 13,
+     "fracao": 1.8e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 0,
+     "fracao": 0.0
+    },
+    "frente": {
+     "pixels_diferentes": 6,
+     "fracao": 8e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 36,
+     "fracao": 5.1e-05
+    }
+   }
+  },
+  {
+   "caso": "exemplo T-rex branco (IA no Colab)",
+   "cubos": 55,
+   "ossos": 23,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 55,
+    "groups": 23,
+    "texture_size": [
+     256,
+     256
+    ],
+    "texture": {
+     "width": 256,
+     "height": 256,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 25,
+     "fracao": 3.5e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 0,
+     "fracao": 0.0
+    },
+    "frente": {
+     "pixels_diferentes": 1,
+     "fracao": 1e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 15,
+     "fracao": 2.1e-05
+    }
+   }
+  },
+  {
+   "caso": "Padrão (verde, listras)",
+   "cubos": 55,
+   "ossos": 23,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 55,
+    "groups": 23,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 25,
+     "fracao": 3.5e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 0,
+     "fracao": 0.0
+    },
+    "frente": {
+     "pixels_diferentes": 4,
+     "fracao": 6e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 14,
+     "fracao": 2e-05
+    }
+   }
+  },
+  {
+   "caso": "Filhote marrom com manchas",
+   "cubos": 30,
+   "ossos": 22,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 30,
+    "groups": 22,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 7,
+     "fracao": 1e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 2,
+     "fracao": 3e-06
+    },
+    "frente": {
+     "pixels_diferentes": 8,
+     "fracao": 1.1e-05
+    },
+    "traseira": {
+     "pixels_diferentes": 17,
+     "fracao": 2.4e-05
+    }
+   }
+  },
+  {
+   "caso": "Cinza blindado com espinhos",
+   "cubos": 65,
+   "ossos": 24,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 65,
+    "groups": 24,
+    "texture_size": [
+     256,
+     256
+    ],
+    "texture": {
+     "width": 256,
+     "height": 256,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 12,
+     "fracao": 1.7e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 0,
+     "fracao": 0.0
+    },
+    "frente": {
+     "pixels_diferentes": 13,
+     "fracao": 1.8e-05
+    },
+    "traseira": {
+     "pixels_diferentes": 28,
+     "fracao": 4e-05
+    }
+   }
+  },
+  {
+   "caso": "Emplumado azul com crista",
+   "cubos": 66,
+   "ossos": 24,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 66,
+    "groups": 24,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 39,
+     "fracao": 5.5e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 0,
+     "fracao": 0.0
+    },
+    "frente": {
+     "pixels_diferentes": 101,
+     "fracao": 0.000143
+    },
+    "traseira": {
+     "pixels_diferentes": 25,
+     "fracao": 3.5e-05
+    }
+   }
+  },
+  {
+   "caso": "detalhe low",
+   "cubos": 30,
+   "ossos": 22,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 30,
+    "groups": 22,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 2,
+     "fracao": 3e-06
+    },
+    "lado_direito": {
+     "pixels_diferentes": 2,
+     "fracao": 3e-06
+    },
+    "frente": {
+     "pixels_diferentes": 2,
+     "fracao": 3e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 21,
+     "fracao": 3e-05
+    }
+   }
+  },
+  {
+   "caso": "detalhe medium",
+   "cubos": 55,
+   "ossos": 23,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 55,
+    "groups": 23,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 23,
+     "fracao": 3.2e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 3,
+     "fracao": 4e-06
+    },
+    "frente": {
+     "pixels_diferentes": 4,
+     "fracao": 6e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 18,
+     "fracao": 2.5e-05
+    }
+   }
+  },
+  {
+   "caso": "detalhe high",
+   "cubos": 64,
+   "ossos": 24,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 64,
+    "groups": 24,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 26,
+     "fracao": 3.7e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 2,
+     "fracao": 3e-06
+    },
+    "frente": {
+     "pixels_diferentes": 4,
+     "fracao": 6e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 37,
+     "fracao": 5.2e-05
+    }
+   }
+  },
+  {
+   "caso": "escala 1.4, textura 256",
+   "cubos": 55,
+   "ossos": 23,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 55,
+    "groups": 23,
+    "texture_size": [
+     256,
+     256
+    ],
+    "texture": {
+     "width": 256,
+     "height": 256,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 43,
+     "fracao": 6.1e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 3,
+     "fracao": 4e-06
+    },
+    "frente": {
+     "pixels_diferentes": 3,
+     "fracao": 4e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 15,
+     "fracao": 2.1e-05
+    }
+   }
+  },
+  {
+   "caso": "branco, cabeça 1.4 (caso do teste real)",
+   "cubos": 55,
+   "ossos": 23,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 55,
+    "groups": 23,
+    "texture_size": [
+     256,
+     256
+    ],
+    "texture": {
+     "width": 256,
+     "height": 256,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 25,
+     "fracao": 3.5e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 0,
+     "fracao": 0.0
+    },
+    "frente": {
+     "pixels_diferentes": 1,
+     "fracao": 1e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 16,
+     "fracao": 2.3e-05
+    }
+   }
+  },
+  {
+   "caso": "sintético: cubo girado, cubo e osso espelhados, cubo inflado",
+   "cubos": 55,
+   "ossos": 23,
+   "exportacao_do_blockbench_identica": true,
+   "reexportacao_apos_importar_identica": true,
+   "importacao_geo": {
+    "format": "bedrock",
+    "cubes": 55,
+    "groups": 23,
+    "texture_size": [
+     128,
+     128
+    ],
+    "texture": {
+     "width": 128,
+     "height": 128,
+     "loaded": true
+    }
+   },
+   "diferencas_projeto_x_geo": [],
+   "erros_validador_blockbench": [],
+   "avisos_validador_blockbench": [],
+   "erros_console": [],
+   "capturas_projeto_x_geo": {
+    "perspectiva": {
+     "pixels_diferentes": 19,
+     "fracao": 2.7e-05
+    },
+    "lado_direito": {
+     "pixels_diferentes": 1,
+     "fracao": 1e-06
+    },
+    "frente": {
+     "pixels_diferentes": 3,
+     "fracao": 4e-06
+    },
+    "traseira": {
+     "pixels_diferentes": 24,
+     "fracao": 3.4e-05
+    }
+   }
+  }
+ ]
+}

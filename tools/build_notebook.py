@@ -56,7 +56,7 @@ def code(cell_id: str, text: str) -> dict:
 
 
 INTRO = """
-# 🦖 Ninho Model Studio — protótipo v0.1
+# 🦖 Ninho Model Studio — protótipo v0.3
 
 Gera **modelos 3D estilo Minecraft** como projeto editável do **Blockbench** (`.bbmodel`) a partir de uma descrição.
 Uma **IA de pesos abertos**, rodando aqui mesmo no Colab, transforma o pedido em dados estruturados; um
@@ -67,7 +67,7 @@ Uma **IA de pesos abertos**, rodando aqui mesmo no Colab, transforma o pedido em
 2. Toque no ▶ de cada etapa **em ordem** e espere aparecer ✅.
 3. Na **Etapa 3** escreva a descrição e ajuste os controles; toque ▶ na **Etapa 3** e depois ▶ na **Etapa 4**.
    Sempre que mudar algo na Etapa 3, execute a Etapa 3 e a Etapa 4 de novo (não precisa repetir as Etapas 1 e 2).
-4. Na **Etapa 5** baixe o `.zip` com o `.bbmodel`, a textura `.png` e a configuração `.json`.
+4. Na **Etapa 5** baixe o `.zip` com o `.bbmodel`, a textura `.png`, o modelo `.geo.json` (Minecraft Java) e a configuração `.json`.
 
 | Modo | Quem decide os parâmetros |
 |---|---|
@@ -75,8 +75,9 @@ Uma **IA de pesos abertos**, rodando aqui mesmo no Colab, transforma o pedido em
 | **Procedural (parâmetros manuais)** | Ninguém “interpreta” nada: valem só os controles da Etapa 3. |
 
 > A **textura é sempre procedural** (regras + seed), não é desenhada pela IA.
-> O `.bbmodel` é o projeto **editável**; para usar no Minecraft, abra no Blockbench e exporte
-> (ex.: *File → Export → Export Bedrock Geometry*). Exportadores GeckoLib/Java ficam para depois.
+> O `.bbmodel` é o projeto **editável** (o jogo não lê esse arquivo). Para o **Minecraft Java**, o pacote traz o
+> `.geo.json` no formato do mod **GeckoLib** (o mesmo que o Blockbench exporta). Ainda faltam o mod (`.jar`) que
+> registra a criatura e as animações.
 """
 
 STEP1 = """
@@ -161,7 +162,7 @@ crista_penas = "automático" #@param ["automático", "sim", "não"]
 #@markdown ---
 #@markdown **Técnico** — textura 128 ou 256 px, limite de cubos e seed (mesma seed = mesmo resultado).
 textura = "128" #@param ["128", "256"]
-orcamento_elementos = 64 #@param {type:"slider", min:16, max:128, step:4}
+orcamento_elementos = 96 #@param {type:"slider", min:16, max:160, step:4}
 seed = 42 #@param {type:"integer"}
 #@markdown **IA** (só no modo IA) — criatividade 0 = sempre a mesma resposta para a mesma descrição.
 criatividade_ia = 0.0 #@param {type:"slider", min:0, max:1, step:0.1}
@@ -183,8 +184,8 @@ RESULTADO = studio.gerar_e_mostrar(globals().get("PARAMS"), llm=globals().get("L
 
 STEP5 = """
 #@title 5️⃣ Baixar os arquivos { display-mode: "form" }
-#@markdown O `.zip` traz o `.bbmodel` (Blockbench), a textura `.png`, a configuração `.json`, as imagens e o visualizador `.html`.
-o_que_baixar = "pacote .zip" #@param ["pacote .zip", "só o .bbmodel", "só a textura .png", "só o .json", "todos separados"]
+#@markdown O `.zip` traz o `.bbmodel` (Blockbench), a textura `.png`, o `.geo.json` (Minecraft Java/GeckoLib), a configuração `.json`, as imagens e o visualizador `.html`.
+o_que_baixar = "pacote .zip" #@param ["pacote .zip", "só o .bbmodel", "só a textura .png", "só o .geo.json (Minecraft Java)", "só o .json", "todos separados"]
 copiar_para_o_google_drive = False #@param {type:"boolean"}
 studio.baixar_arquivos(o_que_baixar, copiar_para_drive=copiar_para_o_google_drive)
 """
@@ -199,6 +200,8 @@ HELP = """
   novo ou marque *copiar para o Google Drive* na Etapa 5.
 * **O download não começou** — toque nos botões verdes que aparecem na Etapa 5.
 * **Abrir no Blockbench pelo celular** — acesse `web.blockbench.net` → *File → Open Model* e escolha o `.bbmodel`.
+* **Minecraft Java** — o `.geo.json` + o `.png` são o modelo e a textura para o mod GeckoLib. Sozinhos eles não colocam a
+  criatura no jogo: falta um mod que a registre (próxima etapa). Veja `docs/MINECRAFT-JAVA.md` no repositório.
 * A criatura olha para **-Z (norte)**, com o lado direito em **+X** e os pés em **Y = 0** (16 px = 1 bloco).
 """
 

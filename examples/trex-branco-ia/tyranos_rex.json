@@ -1,0 +1,268 @@
+{
+  "tool": "Ninho Model Studio",
+  "version": "0.3.0",
+  "spec_version": "1.0",
+  "generated_at": "2026-10-11T19:27:49+00:00",
+  "mode": "ia",
+  "mode_label": "IA (descrição livre interpretada pelo modelo de linguagem)",
+  "description": "Um T-rex branco musculoso, cabeça grande, listras escuras nas costas, barriga creme e olhos vermelhos",
+  "seed": 42,
+  "parameters": {
+    "species": "t_rex",
+    "name": "Tyranos Rex",
+    "scale": 1.0,
+    "proportions": {
+      "head_size": 1.4,
+      "snout_length": 1.0,
+      "jaw_open": 0.35,
+      "neck_length": 1.0,
+      "body_length": 1.0,
+      "body_bulk": 1.0,
+      "arm_length": 1.0,
+      "leg_length": 1.0,
+      "leg_thickness": 1.0,
+      "tail_length": 1.0,
+      "tail_thickness": 1.0
+    },
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#f2f2f2",
+      "belly": "#fffbe8",
+      "pattern": "#333333",
+      "eyes": "#ff6347",
+      "claws": "#f2f2f2",
+      "mouth": "#ff6347"
+    },
+    "pattern": {
+      "type": "stripes",
+      "intensity": 0.75
+    },
+    "skin": "scales",
+    "features": {
+      "brow_horns": false,
+      "back_spikes": false,
+      "teeth_visible": true,
+      "scars": false,
+      "feather_crest": false
+    },
+    "detail_level": "medium"
+  },
+  "manual_adjustments": {
+    "jaw_open": 0.35,
+    "name": "Tyranos Rex"
+  },
+  "ai": {
+    "model": {
+      "model_id": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+      "revision": null,
+      "license": "apache-2.0",
+      "device": "cuda",
+      "dtype": "float16",
+      "load_seconds": 33.6,
+      "transformers_version": "5.18.0",
+      "torch_version": "2.11.0+cu130"
+    },
+    "decoding": {
+      "temperature": 0.0,
+      "do_sample": false,
+      "seed": 42,
+      "max_new_tokens": 700,
+      "max_attempts": 3
+    },
+    "attempts": [
+      {
+        "raw_output": "{\"species\": \"t_rex\", \"name\": \"T-rex branco\", \"scale\": 1.0, \"proportions\": {\"head_size\": 1.4, \"snout_length\": 1.0, \"jaw_open\": 0.35, \"neck_length\": 1.0, \"body_length\": 1.0, \"body_bulk\": 1.0, \"arm_length\": 1.0, \"leg_length\": 1.0, \"leg_thickness\": 1.0, \"tail_length\": 1.0, \"tail_thickness\": 1.0}, \"colors\": {\"primary\": \"#ffffff\", \"secondary\": \"#f2f2f2\", \"belly\": \"#fffbe8\", \"pattern\": \"#333333\", \"eyes\": \"#ff6347\", \"claws\": \"#f2f2f2\", \"mouth\": \"#ff6347\"}, \"pattern\": {\"type\": \"stripes\", \"intensity\": 0.75}, \"skin\": \"scales\", \"features\": {\"brow_horns\": false, \"back_spikes\": false, \"teeth_visible\": true, \"scars\": false, \"feather_crest\": false}, \"detail_level\": \"medium\"}",
+        "new_tokens": 277,
+        "seconds": 11.1,
+        "errors": []
+      }
+    ],
+    "validated_ai_json": {
+      "species": "t_rex",
+      "name": "T-rex branco",
+      "scale": 1.0,
+      "proportions": {
+        "head_size": 1.4,
+        "snout_length": 1.0,
+        "jaw_open": 0.35,
+        "neck_length": 1.0,
+        "body_length": 1.0,
+        "body_bulk": 1.0,
+        "arm_length": 1.0,
+        "leg_length": 1.0,
+        "leg_thickness": 1.0,
+        "tail_length": 1.0,
+        "tail_thickness": 1.0
+      },
+      "colors": {
+        "primary": "#ffffff",
+        "secondary": "#f2f2f2",
+        "belly": "#fffbe8",
+        "pattern": "#333333",
+        "eyes": "#ff6347",
+        "claws": "#f2f2f2",
+        "mouth": "#ff6347"
+      },
+      "pattern": {
+        "type": "stripes",
+        "intensity": 0.75
+      },
+      "skin": "scales",
+      "features": {
+        "brow_horns": false,
+        "back_spikes": false,
+        "teeth_visible": true,
+        "scars": false,
+        "feather_crest": false
+      },
+      "detail_level": "medium"
+    },
+    "fields_from_ai": [
+      "colors.belly",
+      "colors.claws",
+      "colors.eyes",
+      "colors.mouth",
+      "colors.pattern",
+      "colors.primary",
+      "colors.secondary",
+      "detail_level",
+      "features.back_spikes",
+      "features.brow_horns",
+      "features.feather_crest",
+      "features.scars",
+      "features.teeth_visible",
+      "name",
+      "pattern.intensity",
+      "pattern.type",
+      "proportions.arm_length",
+      "proportions.body_bulk",
+      "proportions.body_length",
+      "proportions.head_size",
+      "proportions.jaw_open",
+      "proportions.leg_length",
+      "proportions.leg_thickness",
+      "proportions.neck_length",
+      "proportions.snout_length",
+      "proportions.tail_length",
+      "proportions.tail_thickness",
+      "scale",
+      "skin",
+      "species"
+    ],
+    "fields_from_defaults": [],
+    "warnings": [
+      "Cores citadas: vermelho, branco, creme. Geradas: principal #ffffff (branco), ventre #fffbe8 (branco), padrão #333333 (cinza)."
+    ],
+    "elapsed_s": 11.11
+  },
+  "settings": {
+    "texture_size_requested": 128,
+    "texture_size": 256,
+    "element_budget": 64,
+    "auto_texture_upgrade": true
+  },
+  "texture_generation": "procedural (regras determinísticas a partir da seed; não usa IA)",
+  "result": {
+    "cubes": 55,
+    "bones": 23,
+    "structure": {
+      "tail_segments": 5,
+      "metatarsus": true,
+      "jaw_split": true,
+      "chest": true,
+      "teeth": true,
+      "toes": true,
+      "rounding": true,
+      "cheeks": true,
+      "muscles": true,
+      "throat": true,
+      "tongue": true
+    },
+    "extras": [
+      "brows",
+      "toe_claws"
+    ],
+    "atlas_usage": 0.313,
+    "atlas_strategy": "agrupado por região"
+  },
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [],
+    "checks": [
+      "cabeçalho",
+      "texturas",
+      "identificadores",
+      "dimensões",
+      "UV dentro da textura",
+      "consistência box UV",
+      "hierarquia",
+      "sobreposição no atlas",
+      "pintura das faces",
+      "pivôs",
+      "chão",
+      "faces no mesmo plano",
+      "orçamento de elementos",
+      "geo.json do GeckoLib"
+    ],
+    "stats": {
+      "atlas_usado_px": 13470,
+      "atlas_ocupacao": 0.206,
+      "faces_sem_pintura": 0,
+      "cubos_recortados": [
+        "teeth_lower",
+        "teeth_upper"
+      ],
+      "altura_minima": -0.146,
+      "faces_coincidentes": 0,
+      "cubos": 55,
+      "ossos": 23,
+      "profundidade_hierarquia": 7
+    }
+  },
+  "files": {
+    "bbmodel": "tyranos_rex.bbmodel",
+    "texture": "tyranos_rex.png",
+    "geo": "tyranos_rex.geo.json",
+    "sha256": {
+      "tyranos_rex.bbmodel": "392acd846c5043f796db74b5f3906088487e47f378d7fdebc013a5c4190ec461",
+      "tyranos_rex.png": "74f550b6f52b249ac5c111c822640ac0298dfb495bbb7190f518c3457602d3fe",
+      "tyranos_rex.geo.json": "34b83faf523553fca4e8bae369952d6ca0bb1e372d8ea1c03cf59a7c35281d56"
+    }
+  },
+  "blockbench": {
+    "format_version": "5.0",
+    "model_format": "bedrock",
+    "box_uv": true,
+    "reference_version": "5.2.2",
+    "note": "Projeto editável do Blockbench (o jogo não lê .bbmodel)."
+  },
+  "minecraft_java": {
+    "geckolib_model": "tyranos_rex.geo.json",
+    "geckolib_model_format": "geometria Bedrock 1.12.0 (a mesma exportação do Blockbench/plugin GeckoLib)",
+    "texture": "tyranos_rex.png",
+    "paths_in_mod": {
+      "geckolib4": {
+        "minecraft": "1.20.1 a 1.21.4",
+        "model": "assets/<modid>/geo/entity/tyranos_rex.geo.json",
+        "animation": "assets/<modid>/animations/entity/tyranos_rex.animation.json",
+        "texture": "assets/<modid>/textures/entity/tyranos_rex.png"
+      },
+      "geckolib5": {
+        "minecraft": "1.21.5 em diante",
+        "model": "assets/<modid>/geckolib/models/entity/tyranos_rex.geo.json",
+        "animation": "assets/<modid>/geckolib/animations/entity/tyranos_rex.animation.json",
+        "texture": "assets/<modid>/textures/entity/tyranos_rex.png"
+      }
+    },
+    "animations": null,
+    "mod_jar": null,
+    "status": "modelo e textura prontos para o GeckoLib; faltam as animações e o mod (.jar) que registra a criatura"
+  },
+  "notes": [
+    "reconstruído com a versão atual a partir da interpretação da IA feita no Colab (versão 0.1.0, 2026-10-11); a IA não foi chamada de novo",
+    "barriga #fffbe8 quase igual à cor principal #ffffff (contraste 1.04); para destacar o ventre, use cor_barriga na Etapa 3 (ex.: #e6d6a8)",
+    "textura: o atlas não coube em 128x128; usada 256x256"
+  ],
+  "reproduce": "Use 'parameters', 'seed' e 'settings' no modo procedural para obter o mesmo .bbmodel e o mesmo .png."
+}

@@ -432,7 +432,7 @@ class BuildSettings:
 
     seed: int = 42
     texture_size: int = 128  # 128 ou 256
-    element_budget: int = 64
+    element_budget: int = 96
     auto_texture_upgrade: bool = True
 
     def validate(self) -> list[str]:

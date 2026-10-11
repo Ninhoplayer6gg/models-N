@@ -66,6 +66,50 @@ UNSUPPORTED = {
     "voador": ["pterodactilo", "pteranodonte", "passaro", "aguia", "morcego", "asas"],
 }
 
+# (palavras na descrição, campo, teste sobre o valor, texto do pedido, sugestão de ajuste na Etapa 3)
+KEYWORD_CHECKS = [
+    (("musculos", "robust", "forte", "gordo", "parrudo"), "proportions.body_bulk", lambda v: v >= 1.1,
+     "um corpo musculoso/robusto", "tronco_volume (ex.: 1.25)"),
+    (("magro", "esguio"), "proportions.body_bulk", lambda v: v <= 0.92, "um corpo magro", "tronco_volume (ex.: 0.8)"),
+    (("cabeca grande", "cabeca enorme", "cabecao", "cabecudo", "cabeca gigante"), "proportions.head_size",
+     lambda v: v >= 1.15, "uma cabeça grande", "cabeca (ex.: 1.3)"),
+    (("cabeca pequena",), "proportions.head_size", lambda v: v <= 0.9, "uma cabeça pequena", "cabeca (ex.: 0.75)"),
+    (("cauda longa", "cauda comprida", "rabo longo", "rabo comprido"), "proportions.tail_length", lambda v: v >= 1.15,
+     "uma cauda longa", "cauda_comprimento (ex.: 1.35)"),
+    (("cauda curta", "rabo curto"), "proportions.tail_length", lambda v: v <= 0.9, "uma cauda curta",
+     "cauda_comprimento (ex.: 0.7)"),
+    (("pernas longas", "pernas compridas"), "proportions.leg_length", lambda v: v >= 1.1, "pernas longas",
+     "pernas_comprimento (ex.: 1.25)"),
+    (("bracos grandes", "bracos longos", "bracos compridos"), "proportions.arm_length", lambda v: v >= 1.2,
+     "braços grandes", "bracos (ex.: 1.5)"),
+    (("rugindo", "rugido", "boca aberta", "boca escancarada"), "proportions.jaw_open", lambda v: v >= 0.6,
+     "a boca aberta", "boca = aberta ou rugindo"),
+    (("boca fechada",), "proportions.jaw_open", lambda v: v <= 0.1, "a boca fechada", "boca = fechada"),
+    (("gigante", "enorme", "colossal"), "scale", lambda v: v >= 1.15, "um tamanho grande", "escala (ex.: 1.4)"),
+    (("filhote", "bebe", "pequenino"), "scale", lambda v: v <= 0.9, "um tamanho pequeno", "escala (ex.: 0.7)"),
+]
+
+
+def _get(spec: dict[str, Any], path: str) -> Any:
+    node: Any = spec
+    for part in path.split("."):
+        node = node[part]
+    return node
+
+
+def keyword_checks(description: str, spec: dict[str, Any]) -> list[str]:
+    """Compara palavras da descrição com o JSON da IA e avisa o que ela não refletiu (nada é corrigido sozinho)."""
+    text = " " + " ".join(_norm(description).replace(",", " ").replace(".", " ").split()) + " "
+    out = []
+    for words, path, ok, wanted, hint in KEYWORD_CHECKS:
+        if any(f" {w}" in text for w in words):
+            value = _get(spec, path)
+            if not ok(value):
+                out.append(f"A descrição pede {wanted}, mas a IA deixou {path} = {value}. "
+                           f"Se quiser, ajuste {hint} na Etapa 3.")
+    return out
+
+
 COLOR_WORDS = ["verde", "vermelho", "azul", "amarelo", "laranja", "marrom", "cinza", "preto", "branco", "roxo", "rosa",
                "dourado", "bege", "creme"]
 
@@ -96,12 +140,14 @@ def semantic_warnings(description: str, spec: dict[str, Any], provided: list[str
                 f"A descrição cita '{hits[0]}' ({plan}). Esta versão só constrói terópodes (base T-rex); "
                 "o resultado usa a base T-rex."
             )
+    warnings.extend(keyword_checks(description, spec))
     cited = [w for w in COLOR_WORDS if w in text]
     if cited:
         c = spec["colors"]
         warnings.append(
             "Cores citadas: " + ", ".join(cited) + ". Geradas: principal " + f"{c['primary']} ({color_name_pt(c['primary'])}), "
-            f"ventre {c['belly']} ({color_name_pt(c['belly'])}), padrão {c['pattern']} ({color_name_pt(c['pattern'])})."
+            f"ventre {c['belly']} ({color_name_pt(c['belly'])}), padrão {c['pattern']} ({color_name_pt(c['pattern'])}), "
+            f"olhos {c['eyes']} ({color_name_pt(c['eyes'])})."
         )
     return warnings
 

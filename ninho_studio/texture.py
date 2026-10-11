@@ -6,8 +6,13 @@ na pose final. As regras de pintura usam essas informações para criar regiões
 intencionais:
 
 * contra-sombreamento: dorso mais escuro, laterais, ventre mais claro;
-* escamas ventrais na barriga, linha dos lábios, céu da boca e língua;
-* olhos com pupila e sobrancelha, narinas, dentes pontudos, garras e unhas;
+* sombra de contato calculada pela geometria (:mod:`ninho_studio.lighting`): escurece
+  embaixo da mandíbula, entre a perna e o corpo, entre os dedos, dentro da boca;
+* luz nas bordas de cima e sombra nas de baixo (volume, como um pixel artist faria);
+* escamas ventrais e rugas na garganta, linha dos lábios, céu da boca e língua;
+* olho com íris, pupila em fenda, brilho e pálpebra; narinas; dentes em zigue-zague
+  (recortados com transparência — o GeckoLib desenha entidades com recorte de alfa);
+* garras com degradê, dedos com anéis de escamas e sola escura;
 * padrões opcionais (listras, manchas, faixas, mosqueado) calculados em 3D
   para continuarem de uma peça para outra;
 * microtextura do material (escamas, pele rugosa, lisa, penas).
@@ -25,14 +30,20 @@ from typing import Any
 import numpy as np
 
 from .geometry import transform_points
+from .lighting import OcclusionBaker
 from .model import Cube, Model
-from .palette import Ramp
+from .palette import Ramp, detail_dark, hex_to_rgb, light_factor, mix
 from .uv import FACE_NORMALS, FACES, box_uv_face_rects, rect_bounds, uv_to_local
 
-BELLY_PARTS = {"pelvis", "torso", "chest", "neck", "tail", "jaw"}
-LIMB_PARTS = {"thigh", "shin", "metatarsus", "upper_arm", "forearm", "foot"}
-PATTERN_PARTS = {"pelvis", "torso", "chest", "neck", "tail", "skull", "snout", "thigh", "upper_arm"}
-RIM_PARTS = {"pelvis", "torso", "neck", "skull", "snout", "tail"}
+BELLY_PARTS = {"pelvis", "torso", "chest", "neck", "throat", "tail", "jaw"}
+LIMB_PARTS = {"thigh", "shin", "calf", "metatarsus", "upper_arm", "forearm", "foot", "toe"}
+PATTERN_PARTS = {"pelvis", "hip_top", "torso", "torso_back", "chest", "neck", "tail", "skull", "skull_top", "snout",
+                 "snout_top", "cheek", "thigh", "upper_arm", "scute"}
+CUTOUT_MATERIALS = {"teeth"}
+PRIMARY, SECONDARY, BELLY, PATTERN = range(4)
+# limites de oclusão (0..1) para escurecer 1, 2 e 3 tons; acima de HIDDEN o texel está escondido
+AO_STEPS = (0.16, 0.34, 0.56)
+HIDDEN = 0.93
 
 
 @dataclass
@@ -113,6 +124,12 @@ def value_noise3(p: np.ndarray, freq: float, seed: int) -> np.ndarray:
     return acc
 
 
+def ao_levels(occ: np.ndarray) -> np.ndarray:
+    """Tons a escurecer pela sombra de contato (0 a 3); texels escondidos não mudam."""
+    lv = (occ > AO_STEPS[0]).astype(int) + (occ > AO_STEPS[1]) + (occ > AO_STEPS[2])
+    return np.where(occ > HIDDEN, 0, lv)
+
+
 # ---------------------------------------------------------------------------
 # Pintor
 # ---------------------------------------------------------------------------
@@ -136,6 +153,17 @@ class ProceduralPainter:
         self.skin = spec["skin"]
         self.features = spec["features"]
         self.has_toe_claws = any(cb.part == "toe_claw" for cb in model.iter_cubes())
+        # rampas na ordem PRIMARY, SECONDARY, BELLY, PATTERN: (4, 8, 3), indexadas por nível + 4
+        self._ramps = np.stack([r.array() for r in (self.primary, self.secondary, self.belly, self.pattern)])
+        prim = hex_to_rgb(c["primary"])
+        # cor escura de detalhe (contorno do olho, narinas, dedos) com contraste garantido
+        self.detail_rgb = np.array(detail_dark(prim), dtype=np.int32)
+        # linha dos lábios: em cores muito claras um tom de detalhe suave, senão o tom -2
+        if light_factor(prim) > 0.5:
+            self.lip_rgb = np.array(mix(prim, detail_dark(prim), 0.55), dtype=np.int32)
+        else:
+            self.lip_rgb = np.array(self.primary[-2], dtype=np.int32)
+        self.occlusion = OcclusionBaker(model, max_dist=6.0 * max(0.8, float(spec["scale"])))
         self._prepare_patterns()
 
     # -- padrões globais (dependem só da seed e da forma geral) ---------------
@@ -147,20 +175,19 @@ class ProceduralPainter:
         self.stripes: list[tuple[float, float, float, float]] = []  # (z_centro, largura, alcance, inclinação)
         z = float(lo[2]) + rng.uniform(6.0, 9.0) * s
         while z < hi[2]:
-            width = rng.choice((1.0, 1.0, 1.0, 1.5, 2.0)) * (0.8 + 0.4 * self.intensity)
-            reach = rng.uniform(0.40, 0.80) * (0.55 + 0.5 * self.intensity)
+            width = rng.choice((1.5, 2.0, 2.0, 2.5, 3.0)) * (0.75 + 0.4 * self.intensity)
+            reach = rng.uniform(0.50, 0.85) * (0.55 + 0.5 * self.intensity)
             slant = rng.uniform(0.6, 2.0)
             self.stripes.append((z, width, min(0.95, reach), slant))
-            z += rng.uniform(4.5, 7.5) * s * (1.3 - 0.4 * self.intensity)
+            z += rng.uniform(5.5, 8.5) * s * (1.3 - 0.4 * self.intensity)
         self.band_period = max(4.0, 7.0 * s * (1.2 - 0.4 * self.intensity))
         self.spot_centers: np.ndarray | None = None
-        self.scars: list[tuple[str, int, int, int, int]] = []
 
     # -- utilidades -------------------------------------------------------------
     @staticmethod
-    def _put(img: np.ndarray, ft: FaceTexels, rgb: np.ndarray) -> None:
+    def _put(img: np.ndarray, ft: FaceTexels, rgb: np.ndarray, alpha: np.ndarray | None = None) -> None:
         img[ft.jj, ft.ii, :3] = rgb
-        img[ft.jj, ft.ii, 3] = 255
+        img[ft.jj, ft.ii, 3] = 255 if alpha is None else alpha
 
     def _ramp_pick(self, ramp: Ramp, levels: np.ndarray) -> np.ndarray:
         arr = ramp.array()
@@ -174,13 +201,17 @@ class ProceduralPainter:
         ny = ft.normal[1]
         ry = ft.rel[:, 1]
         zone = np.ones(n, dtype=int)
-        if ny > 0.6:
+        if ft.cube.tags.get("dorsal"):
+            zone[:] = 0 if ny > -0.6 else 2
+        elif ny > 0.6:
             zone[:] = 0
         elif ny < -0.6:
             zone[:] = 3 if part in BELLY_PARTS else 2
         elif part in LIMB_PARTS:
             # membros: cor principal uniforme, só a borda de cima um pouco mais escura
             zone = np.where(ry > 0.85, 0, 1)
+        elif part == "throat":
+            zone[:] = 3
         else:
             zone = np.where(ry > 0.62, 0, np.where(ry > 0.40, 1, 2))
             if part in BELLY_PARTS:
@@ -188,105 +219,111 @@ class ProceduralPainter:
                 zone = np.where(ry < belly_line, 3, zone)
         return zone
 
-    def _paint_skin(self, ft: FaceTexels) -> np.ndarray:
-        n = len(ft.ii)
+    def _paint_skin(self, ft: FaceTexels, occ: np.ndarray) -> np.ndarray:
+        """Pele por tons da paleta: cada regra soma ou subtrai níveis da rampa (sem multiplicar cores)."""
         zone = self._skin_zone(ft)
         part = ft.cube.part
-        rgb = np.zeros((n, 3), dtype=np.int32)
-        level = np.zeros(n, dtype=int)
-        level = np.where(zone == 0, -1, level)
+        side = abs(ft.normal[1]) < 0.6
+        ramp = np.where(zone == 3, BELLY, np.where(zone == 2, SECONDARY, PRIMARY))
+        # ajustes estruturais: tom inteiro da rampa
+        level = np.where(zone == 0, -1, 0)
+        # parte de baixo das pernas um tom mais escura
+        if part in ("metatarsus", "foot", "toe"):
+            level = level - 1
+        # escamas ventrais: linhas transversais na barriga e rugas na garganta
+        if part in BELLY_PARTS and ft.normal[1] < -0.6:
+            level = level - ((np.floor(ft.world[:, 2]).astype(int) % 2) == 0)
+        if part == "throat" and side:  # dobras da garganta
+            level = level - (ft.col % 3 == 0)
+        # sombra de contato (calculada pela geometria); no ventre claro, no máximo 1 tom (senão suja)
+        ao = ao_levels(occ)
+        level = level - np.where(zone == 3, np.minimum(ao, 1), ao)
 
-        # tons base por zona
-        prim = self._ramp_pick(self.primary, level)
-        sec = self._ramp_pick(self.secondary, np.zeros(n, dtype=int))
-        bel = self._ramp_pick(self.belly, np.zeros(n, dtype=int))
-        rgb[:] = prim
-        rgb[zone == 2] = sec[zone == 2]
-        rgb[zone == 3] = bel[zone == 3]
+        # ajustes de textura: 40% do caminho até o tom vizinho (sutis em qualquer cor)
+        touch = self._micro_levels(ft, zone) if part != "throat" else np.zeros(len(ft.ii), dtype=int)
+        if side and ft.fh >= 3:  # volume: luz na borda de cima, sombra na de baixo
+            touch = touch + ((ft.row == 0) & (zone <= 1))
+            if ft.fh >= 6:
+                touch = touch - (ft.row == ft.fh - 1)
+        if part in ("shin", "metatarsus", "toe") and ft.face in ("north", "up"):  # anéis de escamas
+            touch = touch - (ft.row % 2 == 1)
+        touch = np.clip(touch, -1, 1)
+
+        full = soft = None
+        if part in PATTERN_PARTS and self.pattern_type != "none":
+            full, soft = self._pattern_masks(ft, zone)
+            ramp = np.where(full, PATTERN, ramp)
+            level = np.where(full, -ao_levels(occ), level)
+            touch = np.where(full, 0, touch)
+
+        base = self._ramps[ramp, np.clip(level, -4, 3) + 4].astype(np.int32)
+        alt = self._ramps[ramp, np.clip(level + touch, -4, 3) + 4].astype(np.int32)
+        rgb = base + ((alt - base) * 2) // 5
 
         # faixa de transição nítida entre lateral e ventre (tom intermediário, sem pontilhado)
-        side = abs(ft.normal[1]) < 0.6
         if side and part in BELLY_PARTS:
             ry = ft.rel[:, 1]
             belly_line = 0.30 if part != "jaw" else 0.55
             texel = 1.0 / max(1, ft.fh)
-            edge = (ry >= belly_line) & (ry < belly_line + texel * 1.01)
-            mid = ((sec.astype(np.int32) + bel.astype(np.int32)) // 2)
-            rgb[edge] = mid[edge]
-
-        # microtextura do material
-        rgb = self._micro(ft, rgb, zone)
-
-        # padrões
-        if part in PATTERN_PARTS and self.pattern_type != "none":
-            rgb = self._apply_pattern(ft, rgb, zone)
-
-        # escamas ventrais
-        if part in BELLY_PARTS and ft.normal[1] < -0.6:
-            lines = (np.floor(ft.world[:, 2]).astype(int) % 2) == 0
-            darker = self._ramp_pick(self.belly, np.full(n, -1))
-            rgb[lines] = darker[lines]
-
-        # luz de borda no alto das laterais (volume)
-        if part in RIM_PARTS and side:
-            top_row = ft.row == 0
-            light = (rgb.astype(float) * 1.06 + 4).clip(0, 255).astype(np.int32)
-            rgb[top_row & (zone <= 1)] = light[top_row & (zone <= 1)]
-        # sombra na base das pernas/braços
-        if part in ("thigh", "shin", "metatarsus", "upper_arm") and side:
-            bottom = ft.row == ft.fh - 1
-            dark = (rgb.astype(float) * 0.82).astype(np.int32)
-            rgb[bottom] = dark[bottom]
+            edge = (ry >= belly_line) & (ry < belly_line + texel * 1.01) & (ao_levels(occ) == 0)
+            if full is not None:
+                edge &= ~full
+            mid = (self._ramps[SECONDARY, 4].astype(np.int32) + self._ramps[BELLY, 4].astype(np.int32)) // 2
+            rgb[edge] = mid
+        # perto da barriga o padrão fica mais suave (metade do tom)
+        if soft is not None and soft.any():
+            rgb[soft] = (rgb[soft] + self._ramps[PATTERN, 4].astype(np.int32)) // 2
         return rgb
 
-    def _micro(self, ft: FaceTexels, rgb: np.ndarray, zone: np.ndarray) -> np.ndarray:
+    def _micro_levels(self, ft: FaceTexels, zone: np.ndarray) -> np.ndarray:
+        """Microtextura do material: +1 tom (brilho) ou -1 tom (sombra) por texel."""
         i, j = ft.col, ft.row
         n = len(i)
+        delta = np.zeros(n, dtype=int)
         if self.skin == "smooth":
-            return rgb
-        up = np.zeros(n, dtype=bool)
-        down = np.zeros(n, dtype=bool)
+            return delta
         if self.skin == "scales":
             stagger = (j // 2) % 2 * 2
-            up = (j % 2 == 0) & ((i + stagger) % 4 == 0)
-            down = (j % 2 == 1) & ((i + stagger) % 4 == 1)
+            up = (j % 2 == 0) & ((i + stagger) % 4 == 0) & (zone <= 1)
+            down = (j % 2 == 1) & ((i + stagger) % 4 == 1) & (zone <= 2)
         elif self.skin == "rough":
             nz = value_noise3(ft.world, 0.55, self.seed + 11)
             up = nz > 0.80
             down = nz < 0.22
-        elif self.skin == "feathered":
+        else:  # feathered
             w = ft.world
             chevron = (np.floor(w[:, 2] * 0.9 + np.abs(w[:, 0]) * 0.8) % 3) == 0
             up = chevron & (zone <= 1)
             down = (~chevron) & (zone <= 1) & ((i + j) % 5 == 0)
-        out = rgb.astype(float)
-        out[up] = out[up] * 1.07 + 5
-        out[down] = out[down] * 0.90
-        return out.clip(0, 255).astype(np.int32)
+        delta[up] += 1
+        delta[down] -= 1
+        return delta
 
     def _dorsal_distance(self, ft: FaceTexels) -> np.ndarray:
         """0 na linha média do dorso, ~1 na linha da barriga."""
         rel = ft.rel
-        if ft.normal[1] > 0.6:
-            return 0.32 * np.abs(2 * rel[:, 0] - 1)
+        if ft.cube.tags.get("dorsal") or ft.normal[1] > 0.6:
+            return 0.32 * np.abs(2 * rel[:, 0] - 1) if ft.normal[1] > 0.6 else np.full(len(rel), 0.3)
         if ft.normal[1] < -0.6:
             return np.full(len(rel), 1.2)
         return 0.32 + 0.68 * (1 - rel[:, 1])
 
-    def _apply_pattern(self, ft: FaceTexels, rgb: np.ndarray, zone: np.ndarray) -> np.ndarray:
+    def _pattern_masks(self, ft: FaceTexels, zone: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Texels do padrão: (cor cheia, cor suavizada perto da barriga)."""
         n = len(ft.ii)
         mask = np.zeros(n, dtype=bool)
         d = self._dorsal_distance(ft)
         z = ft.world[:, 2]
         part = ft.cube.part
         if self.pattern_type == "stripes":
-            if part in ("upper_arm",):
-                return rgb
-            for zc, width, reach, slant in self.stripes:
-                local_reach = reach * (0.75 if part in ("skull", "snout", "thigh") else 1.0)
-                taper = np.clip(1 - (d / max(local_reach, 1e-3)) ** 2, 0, 1)
-                half = width / 2 * np.sqrt(taper)
-                mask |= (np.abs(z - zc - slant * d * 2.0) <= half) & (d < local_reach)
+            if part not in ("upper_arm",):
+                # bordas irregulares (pintadas à mão), estáveis entre peças vizinhas
+                wobble = (value_noise3(ft.world, 0.7, self.seed + 21) - 0.5) * 0.9
+                for zc, width, reach, slant in self.stripes:
+                    local_reach = reach * (0.75 if part in ("skull", "snout", "thigh", "cheek") else 1.0)
+                    taper = np.clip(1 - (d / max(local_reach, 1e-3)) ** 2, 0, 1)
+                    half = width / 2 * np.sqrt(taper)
+                    mask |= (np.abs(z + wobble - zc - slant * d * 2.0) <= half) & (d < local_reach)
         elif self.pattern_type == "spots":
             centers = self._spots()
             if centers is not None and len(centers):
@@ -298,23 +335,14 @@ class ProceduralPainter:
                 width = 0.35 + 0.25 * self.intensity
                 phase = (z / self.band_period) % 1.0
                 mask = phase < width
-            elif part in ("torso", "pelvis"):
+            elif part in ("torso", "pelvis", "torso_back", "hip_top"):
                 phase = (z / self.band_period) % 1.0
                 mask = (phase < 0.25 + 0.2 * self.intensity) & (d < 0.6)
         elif self.pattern_type == "mottled":
             nz = value_noise3(ft.world, 0.16, self.seed + 3) * 0.75 + value_noise3(ft.world, 0.45, self.seed + 5) * 0.25
             mask = (nz > 0.66 - 0.18 * self.intensity) & (d < 0.95)
-        if not mask.any():
-            return rgb
-        belly_zone = zone == 3
-        pat = self._ramp_pick(self.pattern, np.zeros(n, dtype=int))
-        # perto da barriga o padrão fica mais suave
-        soft = (rgb.astype(float) * 0.5 + pat.astype(float) * 0.5).astype(np.int32)
-        use_soft = mask & ((zone == 2) | belly_zone)
-        use_full = mask & ~use_soft
-        rgb[use_full] = pat[use_full]
-        rgb[use_soft] = soft[use_soft]
-        return rgb
+        soft = mask & ((zone == 2) | (zone == 3))
+        return mask & ~soft, soft
 
     def _spots(self) -> np.ndarray | None:
         if self.spot_centers is not None:
@@ -344,83 +372,96 @@ class ProceduralPainter:
         return self.spot_centers
 
     # -- partes especiais -----------------------------------------------------------
-    def _paint_mouth(self, ft: FaceTexels, roof: bool) -> np.ndarray:
+    def _paint_mouth(self, ft: FaceTexels, occ: np.ndarray, roof: bool) -> np.ndarray:
         n = len(ft.ii)
-        rgb = self._ramp_pick(self.mouth, np.zeros(n, dtype=int)).astype(np.int32)
+        level = np.full(n, -1) - np.minimum(ao_levels(occ), 2)
         if roof:
-            ridges = (ft.row % 2) == 1
-            rgb[ridges] = self._ramp_pick(self.mouth, np.full(n, -1))[ridges]
+            level = level - ((ft.row % 2) == 1)
         else:
-            center = np.abs(2 * ft.rel[:, 0] - 1) < 0.5
-            rgb[center] = self._ramp_pick(self.mouth, np.full(n, 1))[center]
-        return rgb
+            level = level + (np.abs(2 * ft.rel[:, 0] - 1) < 0.5)
+        return self._ramp_pick(self.mouth, level).astype(np.int32)
 
-    def _paint_teeth(self, ft: FaceTexels) -> np.ndarray:
+    def _paint_tongue(self, ft: FaceTexels, occ: np.ndarray) -> np.ndarray:
         n = len(ft.ii)
-        gum = self._ramp_pick(self.mouth, np.full(n, -1)).astype(np.int32)
-        tooth = self._ramp_pick(self.claws, np.zeros(n, dtype=int))
-        tooth_shadow = self._ramp_pick(self.claws, np.full(n, -1))
-        rgb = gum.copy()
-        kind = ft.cube.tags.get("teeth")
-        if ft.face in ("up", "down", "south"):
-            return rgb
-        r = ft.row
-        c = ft.col
-        if kind == "upper":
-            base = r == ft.fh - 2
-            tip = (r == ft.fh - 1) & (c % 2 == 0)
-            rgb[base] = tooth_shadow[base]
-            rgb[tip] = tooth[tip]
-            rgb[base & (c % 2 == 0)] = tooth[base & (c % 2 == 0)]
-        else:
-            base = r == 1
-            tip = (r == 0) & (c % 2 == 0)
-            rgb[base] = tooth_shadow[base]
-            rgb[tip] = tooth[tip]
-            rgb[base & (c % 2 == 0)] = tooth[base & (c % 2 == 0)]
-        return rgb
-
-    def _paint_claw(self, ft: FaceTexels) -> np.ndarray:
-        n = len(ft.ii)
-        if ft.cube.part == "toe_claw":
-            t = 1 - ft.rel[:, 2]  # ponta para a frente (-Z)
-        else:
-            t = 1 - ft.rel[:, 1]  # ponta para baixo
-        levels = np.where(t > 0.66, -2, np.where(t > 0.33, -1, 0))
-        rgb = self._ramp_pick(self.claws, levels).astype(np.int32)
+        level = np.full(n, 1) - np.minimum(ao_levels(occ), 2)
         if ft.face == "up":
-            rgb = self._ramp_pick(self.claws, np.full(n, 1)).astype(np.int32)
-        return rgb
+            groove = np.abs(2 * ft.rel[:, 0] - 1) < 1.0 / max(1, ft.fw)
+            level = level - groove + ((ft.row % 3 == 0) & ~groove)
+        rgb = self._ramp_pick(self.mouth, level).astype(np.int32)
+        pink = np.array(mix(hex_to_rgb(self.spec["colors"]["mouth"]), (236, 150, 160), 0.35), dtype=np.int32)
+        return (rgb * 3 + pink) // 4
 
-    def _paint_spike(self, ft: FaceTexels) -> np.ndarray:
+    def _paint_teeth(self, ft: FaceTexels, occ: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Dentes em zigue-zague: base contínua junto à gengiva e pontas de 1 pixel; o resto é transparente."""
+        n = len(ft.ii)
+        alpha = np.zeros(n, dtype=np.uint8)
+        rgb = self._ramp_pick(self.claws, np.zeros(n, dtype=int)).astype(np.int32)
+        if ft.face not in ("north", "east", "west"):
+            return rgb, alpha
+        kind = ft.cube.tags.get("teeth")
+        h = ft.fh
+        depth = ft.row if kind == "upper" else (h - 1 - ft.row)  # 0 junto à gengiva, cresce para a ponta
+        rng_shift = random.Random(f"{self.seed}:teeth:{ft.cube.bone}:{kind}:{ft.face}").randrange(3)
+        cc = ft.col + rng_shift
+        tooth = (cc % 3) != 2  # dentes de 2 px separados por 1 px
+        tip = (cc % 3) == 0
+        if h <= 2:
+            shape = (depth == 0) | ((depth == 1) & tip)
+            gum = (depth == 0) & ~tooth
+        else:
+            shape = (depth == 0) | ((depth < h - 1) & tooth) | ((depth == h - 1) & tip)
+            gum = (depth == 0) & ~tooth
+        level = np.where(depth == 0, -1, np.where(depth >= h - 1, 1, 0)) - np.minimum(ao_levels(occ), 1)
+        rgb = self._ramp_pick(self.claws, level).astype(np.int32)
+        rgb[gum] = self._ramp_pick(self.mouth, np.full(n, -1))[gum]
+        alpha[shape] = 255
+        return rgb, alpha
+
+    def _paint_claw(self, ft: FaceTexels, occ: np.ndarray) -> np.ndarray:
+        n = len(ft.ii)
+        if ft.cube.part in ("toe_claw", "dewclaw"):
+            t = 1 - ft.rel[:, 2]  # ponta para a frente (-Z) — 1 na base
+        else:
+            t = 1 - ft.rel[:, 1]  # ponta para baixo — 1 na base
+        levels = np.where(t > 0.66, -1, np.where(t > 0.33, 0, 1))
+        if ft.face == "up":
+            levels = levels + 1
+        levels = levels - np.minimum(ao_levels(occ), 2)
+        return self._ramp_pick(self.claws, levels).astype(np.int32)
+
+    def _paint_spike(self, ft: FaceTexels, occ: np.ndarray) -> np.ndarray:
         n = len(ft.ii)
         levels = np.where(ft.rel[:, 1] > 0.5, 1, -1)
         if ft.face == "up":
             levels = np.full(n, 1)
-        return self._ramp_pick(self.pattern, levels).astype(np.int32)
+        return self._ramp_pick(self.pattern, levels - np.minimum(ao_levels(occ), 2)).astype(np.int32)
 
-    def _paint_crest(self, ft: FaceTexels) -> np.ndarray:
+    def _paint_crest(self, ft: FaceTexels, occ: np.ndarray) -> np.ndarray:
         n = len(ft.ii)
         stripes = (ft.col + ft.row) % 3 == 0
-        rgb = self._ramp_pick(self.pattern, np.zeros(n, dtype=int)).astype(np.int32)
+        rgb = self._ramp_pick(self.pattern, np.zeros(n, dtype=int) - np.minimum(ao_levels(occ), 1)).astype(np.int32)
         rgb[stripes] = self._ramp_pick(self.secondary, np.full(n, 1))[stripes]
         return rgb
 
-    def _paint_brow(self, ft: FaceTexels) -> np.ndarray:
+    def _paint_brow(self, ft: FaceTexels, occ: np.ndarray) -> np.ndarray:
         n = len(ft.ii)
         if ft.cube.tags.get("horn"):
-            levels = np.where(ft.rel[:, 1] > 0.66, -1, -3)
+            levels = np.where(ft.rel[:, 1] > 0.66, -1, -3) + (ft.face == "up")
             return self._ramp_pick(self.primary, levels).astype(np.int32)
-        levels = np.full(n, -2)
         if ft.face == "up":
-            levels = np.full(n, -1)
-        return self._ramp_pick(self.primary, levels).astype(np.int32)
+            levels = np.zeros(n, dtype=int)
+        elif ft.face == "down":
+            levels = np.full(n, -3)
+        else:
+            levels = np.where(ft.row == 0, 0, -1)
+        return self._ramp_pick(self.primary, levels - np.minimum(ao_levels(occ), 1)).astype(np.int32)
 
     def _paint_foot(self, ft: FaceTexels, rgb: np.ndarray) -> np.ndarray:
         n = len(ft.ii)
         if ft.face == "down":
             return self._ramp_pick(self.primary, np.full(n, -3)).astype(np.int32)
-        rgb = (rgb.astype(float) * 0.88).astype(np.int32)
+        if ft.cube.part == "toe" or ft.cube.tags.get("heel"):
+            return rgb
         toes = int(ft.cube.tags.get("toes", 3))
         rx = ft.rel[:, 0]
         boundaries = [k / toes for k in range(1, toes)]
@@ -428,26 +469,17 @@ class ProceduralPainter:
         fwidth = max(1.0, ft.cube.size[0])
         for b in boundaries:
             sep |= np.abs(rx - b) < (0.5 / fwidth)
-        dark = self._ramp_pick(self.primary, np.full(n, -3))
         if ft.face == "up":
             front = ft.rel[:, 2] < 0.6
-            rgb[sep & front] = dark[sep & front]
+            rgb[sep & front] = self.detail_rgb
         if ft.face == "north":
-            rgb[sep] = dark[sep]
+            rgb[sep] = self.detail_rgb
             if not self.has_toe_claws:
                 nails = (ft.row == ft.fh - 1) & ~sep
                 rgb[nails] = self._ramp_pick(self.claws, np.full(n, -1))[nails]
         return rgb
 
-    def _paint_shin_scutes(self, ft: FaceTexels, rgb: np.ndarray) -> np.ndarray:
-        if ft.face != "north":
-            return rgb
-        lines = ft.row % 2 == 1
-        out = rgb.copy()
-        out[lines] = (rgb[lines].astype(float) * 0.85).astype(np.int32)
-        return out
-
-    def _paint_eye(self, img: np.ndarray, ft: FaceTexels, rgb: np.ndarray) -> np.ndarray:
+    def _paint_eye(self, ft: FaceTexels, rgb: np.ndarray) -> np.ndarray:
         for lm in self.model.landmarks.values():
             if not lm.name.startswith("eye_") or lm.bone != ft.cube.bone or lm.cube != ft.cube.name or lm.face != ft.face:
                 continue
@@ -456,17 +488,19 @@ class ProceduralPainter:
             b = np.floor(ft.rest[:, 1] - lm.point[1]).astype(int)
             n = len(ft.ii)
             iris = self._ramp_pick(self.eyes, np.zeros(n, dtype=int))
-            iris_light = self._ramp_pick(self.eyes, np.full(n, 2))
-            pupil = np.tile(np.array([[18, 14, 12]]), (n, 1))
-            brow = self._ramp_pick(self.primary, np.full(n, -3))
+            iris_top = self._ramp_pick(self.eyes, np.full(n, 1))
+            glint = np.tile(np.array(mix(self.eyes[3], (255, 255, 250), 0.7)), (n, 1))
+            pupil = np.tile(np.array([[16, 12, 12]]), (n, 1))
+            dark = np.tile(self.detail_rgb, (n, 1))
             lid = self._ramp_pick(self.primary, np.full(n, -2))
+            in_rows = (b >= -1) & (b <= 0)
             rules = [
-                ((b == 1) & (a >= -2) & (a <= 1), brow),
-                ((b == -2) & (a >= -1) & (a <= 0), lid),
-                ((a == 1) & (b >= -1) & (b <= 0), lid),
-                ((a == -1) & (b == 0), iris_light),
-                ((a == -1) & (b == -1), iris),
-                ((a == 0) & (b >= -1) & (b <= 0), pupil),
+                ((b == -2) & (a >= -1) & (a <= 1), lid),  # pálpebra de baixo
+                ((b == 1) & (a >= -1) & (a <= 1), dark),  # sombra da sobrancelha
+                ((np.abs(a) == 1) & in_rows, iris),
+                ((a == -1) & (b == 0), iris_top),
+                ((a == 0) & in_rows, pupil),  # pupila em fenda
+                ((a == 1) & (b == 0), glint),  # brilho
             ]
             for cond, color in rules:
                 rgb[cond] = color[cond]
@@ -479,20 +513,17 @@ class ProceduralPainter:
             dx = np.abs(ft.rest[:, 0] - lm.point[0])
             dz = np.abs(ft.rest[:, 2] - lm.point[2])
             hit = (dx < 0.75) & (dz < 0.75)
-            rgb[hit] = self._ramp_pick(self.primary, np.full(len(ft.ii), -4))[hit]
+            rgb[hit] = self.detail_rgb
         return rgb
 
     def _paint_lips(self, ft: FaceTexels, rgb: np.ndarray) -> np.ndarray:
         part = ft.cube.part
         if ft.face in ("up", "down"):
             return rgb
-        n = len(ft.ii)
         if part in ("snout", "skull") and ft.face != "south":
-            lip = ft.row == ft.fh - 1
-            rgb[lip] = self._ramp_pick(self.primary, np.full(n, -2))[lip]
+            rgb[ft.row == ft.fh - 1] = self.lip_rgb
         if part == "jaw" and ft.face != "south":
-            lip = ft.row == 0
-            rgb[lip] = self._ramp_pick(self.primary, np.full(n, -2))[lip]
+            rgb[ft.row == 0] = self.lip_rgb
         return rgb
 
     def _paint_scars(self, ft: FaceTexels, rgb: np.ndarray) -> np.ndarray:
@@ -518,37 +549,38 @@ class ProceduralPainter:
         img = np.zeros((self.model.texture_height, self.model.texture_width, 4), dtype=np.uint8)
         for cube in self.model.iter_cubes():
             for ft in face_texels(self.model, cube):
-                rgb = self._paint_face(img, ft)
-                self._put(img, ft, np.clip(rgb, 0, 255).astype(np.uint8))
+                occ = self.occlusion.occlusion(ft.world, ft.normal)
+                out = self._paint_face(ft, occ)
+                rgb, alpha = out if isinstance(out, tuple) else (out, None)
+                self._put(img, ft, np.clip(rgb, 0, 255).astype(np.uint8), alpha)
         return img
 
-    def _paint_face(self, img: np.ndarray, ft: FaceTexels) -> np.ndarray:
+    def _paint_face(self, ft: FaceTexels, occ: np.ndarray):
         part = ft.cube.part
         material = ft.cube.material
         if material == "teeth":
-            return self._paint_teeth(ft)
+            return self._paint_teeth(ft, occ)
+        if material == "tongue":
+            return self._paint_tongue(ft, occ)
         if material == "claw":
-            return self._paint_claw(ft)
+            return self._paint_claw(ft, occ)
         if material == "spike":
-            return self._paint_spike(ft)
+            return self._paint_spike(ft, occ)
         if material == "crest":
-            return self._paint_crest(ft)
+            return self._paint_crest(ft, occ)
         if part == "brow":
-            return self._paint_brow(ft)
+            return self._paint_brow(ft, occ)
         if part in ("skull", "snout") and ft.face == "down":
-            return self._paint_mouth(ft, roof=True)
+            return self._paint_mouth(ft, occ, roof=True)
         if part == "jaw" and ft.face == "up":
-            return self._paint_mouth(ft, roof=False)
-        rgb = self._paint_skin(ft)
-        if part == "foot":
+            return self._paint_mouth(ft, occ, roof=False)
+        rgb = self._paint_skin(ft, occ)
+        if part in ("foot", "toe"):
             rgb = self._paint_foot(ft, rgb)
-        if part in ("shin", "metatarsus"):
-            rgb = (rgb.astype(float) * 0.92).astype(np.int32)
-            rgb = self._paint_shin_scutes(ft, rgb)
         if part == "nasal_ridge":
             rgb = self._ramp_pick(self.primary, np.full(len(ft.ii), -1 if ft.face != "up" else 0)).astype(np.int32)
         rgb = self._paint_lips(ft, rgb)
-        rgb = self._paint_eye(img, ft, rgb)
+        rgb = self._paint_eye(ft, rgb)
         rgb = self._paint_nostrils(ft, rgb)
         rgb = self._paint_scars(ft, rgb)
         return rgb
