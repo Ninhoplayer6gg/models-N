@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+ninho_saida/
+/tmp_*/
+.ipynb_checkpoints/

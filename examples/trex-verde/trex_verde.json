@@ -1,0 +1,120 @@
+{
+  "tool": "Ninho Model Studio",
+  "version": "0.1.0",
+  "spec_version": "1.0",
+  "generated_at": "2026-10-11T13:32:43+00:00",
+  "mode": "procedural",
+  "mode_label": "Procedural (parâmetros preenchidos manualmente)",
+  "description": "Um T-rex verde, com listras escuras nas costas, barriga creme, olhos amarelos e boca entreaberta.",
+  "seed": 42,
+  "parameters": {
+    "species": "t_rex",
+    "name": "T-rex verde",
+    "scale": 1.0,
+    "proportions": {
+      "head_size": 1.0,
+      "snout_length": 1.0,
+      "jaw_open": 0.35,
+      "neck_length": 1.0,
+      "body_length": 1.0,
+      "body_bulk": 1.0,
+      "arm_length": 1.0,
+      "leg_length": 1.0,
+      "leg_thickness": 1.0,
+      "tail_length": 1.0,
+      "tail_thickness": 1.0
+    },
+    "colors": {
+      "primary": "#4f7a35",
+      "secondary": "#78a04a",
+      "belly": "#dcd3a2",
+      "pattern": "#2b4524",
+      "eyes": "#f2c12e",
+      "claws": "#ebe3cb",
+      "mouth": "#8a2c2c"
+    },
+    "pattern": {
+      "type": "stripes",
+      "intensity": 0.55
+    },
+    "skin": "scales",
+    "features": {
+      "brow_horns": false,
+      "back_spikes": false,
+      "teeth_visible": true,
+      "scars": false,
+      "feather_crest": false
+    },
+    "detail_level": "medium"
+  },
+  "manual_adjustments": null,
+  "ai": null,
+  "settings": {
+    "texture_size_requested": 128,
+    "texture_size": 128,
+    "element_budget": 64,
+    "auto_texture_upgrade": true
+  },
+  "texture_generation": "procedural (regras determinísticas a partir da seed; não usa IA)",
+  "result": {
+    "cubes": 32,
+    "bones": 22,
+    "structure": {
+      "tail_segments": 4,
+      "metatarsus": true,
+      "jaw_split": true,
+      "chest": true,
+      "teeth": true
+    },
+    "extras": [
+      "brows"
+    ],
+    "atlas_usage": 0.752,
+    "atlas_strategy": "agrupado por região"
+  },
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [],
+    "checks": [
+      "cabeçalho",
+      "texturas",
+      "identificadores",
+      "dimensões",
+      "UV dentro da textura",
+      "consistência box UV",
+      "hierarquia",
+      "sobreposição no atlas",
+      "pintura das faces",
+      "pivôs",
+      "chão",
+      "orçamento de elementos"
+    ],
+    "stats": {
+      "atlas_usado_px": 8316,
+      "atlas_ocupacao": 0.508,
+      "faces_sem_pintura": 0,
+      "altura_minima": -0.146,
+      "cubos": 32,
+      "ossos": 22,
+      "profundidade_hierarquia": 6
+    }
+  },
+  "files": {
+    "bbmodel": "trex_verde.bbmodel",
+    "texture": "trex_verde.png",
+    "sha256": {
+      "trex_verde.bbmodel": "163779db4c2a28e41f6c27bed400b91dceab2d9b1341fb1c63356120f658eef6",
+      "trex_verde.png": "16ce74a9e010512e27ee2d43e02a5bb258b94f97323802a7a6a0980b797c8470"
+    }
+  },
+  "blockbench": {
+    "format_version": "5.0",
+    "model_format": "bedrock",
+    "box_uv": true,
+    "reference_version": "5.2.2",
+    "note": "Projeto editável do Blockbench. Para o Minecraft, exporte no Blockbench (ex.: Bedrock Geometry)."
+  },
+  "notes": [],
+  "reproduce": "Use 'parameters', 'seed' e 'settings' no modo procedural para obter o mesmo .bbmodel e o mesmo .png."
+}
