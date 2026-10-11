@@ -275,3 +275,12 @@ def viewer_html(mesh: Mesh, texture_png: bytes, title: str = "Ninho Model Studio
         .replace("__NOTE__", html.escape(note))
         .replace("__DATA__", json.dumps(data))
     )
+
+
+def viewer_iframe(page: str, height: int = 660) -> str:
+    """Envolve a página num ``<iframe srcdoc>``: o visualizador roda isolado dentro da saída do notebook."""
+    return (
+        f'<iframe srcdoc="{html.escape(page, quote=True)}" '
+        f'style="width:100%;max-width:740px;height:{int(height)}px;border:0;display:block" '
+        'title="Visualizador 3D do Ninho Model Studio" loading="lazy"></iframe>'
+    )

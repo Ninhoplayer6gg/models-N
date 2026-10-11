@@ -84,7 +84,7 @@ def semantic_warnings(description: str, spec: dict[str, Any], provided: list[str
         for text, answer in EXAMPLES:
             if _without_name(ai_json) == _without_name(answer) and _norm(text) != _norm(description):
                 warnings.append("A IA repetiu um exemplo do prompt em vez de interpretar a descrição; "
-                                "reformule a descrição ou use outra seed/criatividade.")
+                                "reformule a descrição ou aumente a criatividade.")
     text = _norm(description)
     total = len(all_leaf_paths())
     if len(provided) < 0.25 * total:

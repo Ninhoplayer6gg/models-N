@@ -373,6 +373,11 @@ def build_theropod(
 
     _place_on_ground(model)
     _fix_tail_clearance(model, n)
+    # registra só os detalhes opcionais que realmente viraram cubos
+    parts = {c.part for c in model.iter_cubes()}
+    extra_parts = {"brows": "brow", "toe_claws": "toe_claw", "nasal_ridge": "nasal_ridge", "back_spikes": "spike",
+                   "feather_crest": "crest"}
+    model.meta["extras"] = sorted(e for e in extras if extra_parts.get(e) in parts)
     return model
 
 

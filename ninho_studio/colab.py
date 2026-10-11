@@ -179,6 +179,18 @@ def carregar_ia(modelo: str, dispositivo: str = "automático") -> Any:
     from .ai import MODEL_CHOICES, LLMError, load_llm
 
     device = {"automático": "auto", "GPU": "cuda", "CPU": "cpu"}.get(dispositivo, dispositivo)
+    if STATE.llm is not None:  # libera o modelo anterior antes de carregar outro (evita faltar memória)
+        STATE.llm = None
+        import gc
+
+        gc.collect()
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except ImportError:
+            pass
     info = MODEL_CHOICES.get(modelo, {})
     if info:
         _box("Carregando a IA",
@@ -351,12 +363,16 @@ def gerar_e_mostrar(params: Optional[dict[str, Any]] = None, llm: Any = None, ou
         if not description:
             _box("❌ Descrição vazia", "Escreva a descrição na Etapa 3 (modo IA).", "error")
             return None
-        key = (llm.model_id, description, settings.seed, params["ai"]["temperature"], params["ai"]["max_attempts"])
+        # com criatividade 0 a resposta não depende da seed: mudar só a seed não chama a IA de novo
+        temperature = params["ai"]["temperature"]
+        key = (llm.model_id, description, settings.seed if temperature > 0 else None, temperature,
+               params["ai"]["max_attempts"])
         cached = STATE.ai_cache.get(key)
         if cached is not None and not params["ai"]["force"]:
             ai = cached
             _box("♻️ Usando a interpretação anterior da IA",
-                 "Mesma descrição, modelo e seed. Marque “refazer_interpretacao” para pedir outra.", "info")
+                 "Mesma descrição e mesmo modelo (com criatividade 0 a resposta seria igual). "
+                 "Marque “refazer_interpretacao” para pedir outra.", "info")
         else:
             _box("🤖 Modo IA", f"Interpretando a descrição com <b>{_html.escape(llm.model_id)}</b>…", "info")
             ai = interpret(description, llm, seed=settings.seed, temperature=params["ai"]["temperature"],
@@ -368,7 +384,8 @@ def gerar_e_mostrar(params: Optional[dict[str, Any]] = None, llm: Any = None, ou
             _box("❌ A IA não produziu um JSON válido",
                  _list(ai.errors) + f"<details><summary>Última resposta da IA</summary><pre style='white-space:pre-wrap'>"
                  f"{_html.escape(str(raw)[:3000])}</pre></details>"
-                 "Opções: tente de novo com outra seed ou descrição mais simples, ou use o <b>modo procedural</b> "
+                 "Opções: aumente “criatividade_ia” (ex.: 0.3, então a seed passa a variar a resposta), "
+                 "simplifique a descrição, ou use o <b>modo procedural</b> "
                  "(Etapa 3 → “Procedural (parâmetros manuais)”).", "error")
             return None
         base = ai.spec
@@ -432,7 +449,7 @@ def gerar_e_mostrar(params: Optional[dict[str, Any]] = None, llm: Any = None, ou
 
 def visualizar_3d(result: Any = None) -> None:
     from .mesh import build_mesh
-    from .viewer import viewer_html
+    from .viewer import viewer_html, viewer_iframe
 
     result = result or STATE.last_result
     if result is None:
@@ -443,7 +460,7 @@ def visualizar_3d(result: Any = None) -> None:
     if _in_notebook():
         from IPython.display import HTML, display
 
-        display(HTML(page))
+        display(HTML(viewer_iframe(page)))
     else:
         print("visualizador disponível no arquivo _3d.html")
 

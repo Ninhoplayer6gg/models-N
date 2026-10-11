@@ -108,8 +108,8 @@ class LocalLLM:
 
         eos = tok.eos_token_id
         pad = tok.pad_token_id if tok.pad_token_id is not None else eos
-        cfg = {"max_new_tokens": int(max_new_tokens), "eos_token_id": eos, "pad_token_id": pad,
-               "repetition_penalty": 1.05}
+        # sem penalidade de repetição: JSON repete aspas, vírgulas e chaves por natureza
+        cfg = {"max_new_tokens": int(max_new_tokens), "eos_token_id": eos, "pad_token_id": pad}
         if temperature and temperature > 0:
             cfg.update(do_sample=True, temperature=float(temperature), top_p=0.9, top_k=40)
         else:

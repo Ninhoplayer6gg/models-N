@@ -34,8 +34,9 @@ Toque no ▶ à esquerda de cada etapa e espere o ✅.
 5. **Baixar os arquivos** — baixa o `.zip`. Se o download não começar, toque no botão verde.
 
 **Mudou algo?** Toque ▶ na Etapa 3 e depois ▶ na Etapa 4. Não precisa repetir as Etapas 1 e 2.
-Com a mesma descrição e a mesma seed, a IA não é chamada de novo (o resultado anterior é
-reaproveitado); marque *refazer_interpretacao* para pedir outra leitura.
+Com a mesma descrição (e criatividade 0), a IA não é chamada de novo: o resultado anterior é
+reaproveitado, e mudar só a seed altera a pose e a textura. Marque *refazer_interpretacao* para
+pedir outra leitura.
 
 ## 4. Abrir no Blockbench pelo celular
 
@@ -51,7 +52,7 @@ reaproveitado); marque *refazer_interpretacao* para pedir outra leitura.
 | Situação | O que fazer |
 |---|---|
 | "A IA não carregou" | Tente o modelo 0.5B ou *Ambiente de execução → Reiniciar sessão* e rode a Etapa 1 de novo. Enquanto isso, use o modo procedural. |
-| "A IA não produziu um JSON válido" | A resposta da IA aparece na mensagem. Troque a seed, simplifique a descrição ou use o modo procedural. |
+| "A IA não produziu um JSON válido" | A resposta da IA aparece na mensagem. Aumente *criatividade_ia* (ex.: 0.3; aí a seed passa a variar a resposta), simplifique a descrição ou use o modo procedural. |
 | A sessão caiu / os arquivos sumiram | O Colab gratuito encerra sessões paradas. Rode as etapas de novo; marque *copiar_para_o_google_drive* na Etapa 5 para guardar os arquivos. |
 | Aviso "orçamento de elementos" | Aumente *orcamento_elementos* ou reduza o detalhe. |
 | Aviso "escala reduzida" / "textura 256" | O modelo ficou grande demais para o atlas; o programa ajustou e avisou. |

@@ -2,7 +2,7 @@
   "tool": "Ninho Model Studio",
   "version": "0.1.0",
   "spec_version": "1.0",
-  "generated_at": "2026-10-11T13:32:12+00:00",
+  "generated_at": "2026-10-11T13:32:43+00:00",
   "mode": "procedural",
   "mode_label": "Procedural (parâmetros preenchidos manualmente)",
   "description": "Um T-rex verde, com listras escuras nas costas, barriga creme, olhos amarelos e boca entreaberta.",
@@ -67,9 +67,7 @@
       "teeth": true
     },
     "extras": [
-      "back_spikes",
-      "brows",
-      "feather_crest"
+      "brows"
     ],
     "atlas_usage": 0.752,
     "atlas_strategy": "agrupado por região"

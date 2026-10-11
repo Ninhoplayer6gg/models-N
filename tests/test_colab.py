@@ -78,3 +78,15 @@ def test_downloads_without_colab(tmp_path, capsys):
     colab.baixar_arquivos("todos separados")
     out = capsys.readouterr().out
     assert "Arquivos em" in out
+
+
+def test_ai_cache_ignores_seed_when_deterministic(tmp_path, fake_llm_factory):
+    reply = json.dumps({"species": "t_rex", "name": "Rex"})
+    llm = fake_llm_factory([reply, reply])
+    base = {**FORM, "modo": "IA (descrição livre)", "descricao": "rex com seed variando"}
+    colab.gerar_e_mostrar(colab.coletar_parametros(**{**base, "seed": 1}), llm=llm, out_dir=str(tmp_path),
+                          visualizador_3d=False)
+    res = colab.gerar_e_mostrar(colab.coletar_parametros(**{**base, "seed": 2}), llm=llm, out_dir=str(tmp_path),
+                                visualizador_3d=False)
+    assert res is not None and len(llm.calls) == 1  # mesma interpretação, nova seed só para forma/textura
+    assert res.config["seed"] == 2

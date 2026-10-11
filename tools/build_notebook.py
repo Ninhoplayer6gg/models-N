@@ -116,6 +116,7 @@ STEP2 = """
 #@markdown Escolha o modelo (pode digitar outro nome do Hugging Face) e onde rodar.
 modelo = "Qwen/Qwen2.5-Coder-1.5B-Instruct" #@param ["Qwen/Qwen2.5-Coder-1.5B-Instruct", "Qwen/Qwen2.5-Coder-0.5B-Instruct", "Qwen/Qwen2.5-1.5B-Instruct"] {allow-input: true}
 dispositivo = "automático" #@param ["automático", "GPU", "CPU"]
+LLM = None  # libera o modelo anterior, se houver
 LLM = studio.carregar_ia(modelo, dispositivo)
 """
 
@@ -192,8 +193,8 @@ HELP = """
 ### Problemas comuns
 * **“A IA não carregou” / falta de memória** — use o modelo 0.5B, ou *Ambiente de execução → Reiniciar sessão* e rode a
   Etapa 1 de novo. Enquanto isso, o modo procedural funciona.
-* **A IA devolveu algo inválido** — o erro aparece com a resposta da IA. Tente outra seed, simplifique a descrição ou use o
-  modo procedural.
+* **A IA devolveu algo inválido** — o erro aparece com a resposta da IA. Aumente *criatividade_ia* (ex.: 0.3; aí a seed
+  passa a variar a resposta), simplifique a descrição ou use o modo procedural.
 * **A sessão do Colab caiu** (inatividade ou limite do plano gratuito) — os arquivos em `/content` somem; rode as etapas de
   novo ou marque *copiar para o Google Drive* na Etapa 5.
 * **O download não começou** — toque nos botões verdes que aparecem na Etapa 5.
