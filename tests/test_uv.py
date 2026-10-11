@@ -75,3 +75,31 @@ def test_pack_no_overlap_and_in_bounds():
 
 def test_pack_returns_none_when_too_big():
     assert pack([PackItem(0, 200, 10)], 128, 128) is None
+
+
+def test_shape_packing_uses_empty_corners():
+    from ninho_studio.uv import box_uv_shape, pack_shapes
+
+    big = PackItem("big", *box_uv_footprint((10, 4, 10)), rects=box_uv_shape((10, 4, 10)))  # 40 x 14, cantos 10x10 vazios
+    small = PackItem("small", *box_uv_footprint((2, 6, 2)), rects=box_uv_shape((2, 6, 2)))  # 8 x 8
+    placed = pack_shapes([big, small], 40, 14, "height")
+    assert placed is not None  # só cabe usando um canto vazio do cubo grande
+    assert pack([big, small], 40, 14) is None  # o empacotador por retângulos não consegue
+    grid = np.zeros((14, 40), dtype=int)
+    for it in (big, small):
+        x, y = placed[it.key]
+        for x0, y0, x1, y1 in it.occupied():
+            grid[y + y0:y + y1, x + x0:x + x1] += 1
+    assert grid.max() == 1
+
+
+def test_big_head_fits_128():
+    """Spec do teste real (cabeça 1.4x) subia para 256; agora cabe em 128 sem sobreposição."""
+    from ninho_studio.pipeline import generate
+    from ninho_studio.spec import BuildSettings, default_spec
+
+    spec = default_spec()
+    spec["proportions"]["head_size"] = 1.4
+    res = generate(spec, BuildSettings(seed=42, texture_size=128), mode="procedural")
+    assert res.atlas.size == 128 and not res.atlas.upgraded
+    assert res.validation.ok and not res.validation.warnings

@@ -85,3 +85,13 @@ def test_extreme_proportions_validate():
             assert res.spec["scale"] < 1.6 and res.atlas.size == 256
             assert any("escala reduzida" in n for n in res.notes)
             assert res.config["parameters"]["scale"] == res.spec["scale"]
+
+
+def test_color_notes_for_low_contrast_belly():
+    from ninho_studio.pipeline import color_notes
+
+    spec = default_spec()
+    assert color_notes(spec) == []
+    spec["colors"].update(primary="#ffffff", belly="#fffbe8")
+    notes = color_notes(spec)
+    assert notes and "cor_barriga" in notes[0]

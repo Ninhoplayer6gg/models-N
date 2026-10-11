@@ -5,9 +5,10 @@ Não são necessárias para usar o notebook; servem para manter e verificar o pr
 | Ferramenta | Para quê |
 |---|---|
 | `build_notebook.py` | Gera `Ninho-Model-Studio.ipynb` com o pacote `ninho_studio` embutido. **Rode sempre que mudar o código** (um teste falha se o notebook estiver desatualizado). |
-| `make_example.py` | Gera `examples/trex-verde/` e `docs/img/variacoes.png`. |
+| `make_example.py` | Gera `examples/trex-verde/`, reconstrói `examples/trex-branco-ia/` a partir do `.json` do Colab (sem chamar a IA) e gera `docs/img/variacoes.png`. |
 | `blockbench_check.mjs` | Abre um `.bbmodel` no Blockbench oficial (build web local) e registra validador, capturas, ida e volta, exportação Bedrock e `visible_box`. |
-| `compare_renders.py` | IoU das silhuetas entre as capturas do Blockbench e a prévia do Ninho; opcionalmente gera a imagem lado a lado. |
+| `compare_renders.py` | IoU das silhuetas entre as capturas do Blockbench e a prévia do Ninho; opcionalmente gera a imagem lado a lado e compara a pose de teste (`--pose pose.json saida.png`). |
+| `verify_variants.py` | Gera 9 variantes, abre cada uma no Blockbench e grava `docs/verificacao-blockbench-variantes.json`. |
 
 ## Testes
 

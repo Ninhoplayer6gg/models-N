@@ -101,3 +101,18 @@ def test_warns_when_example_is_copied(fake_llm_factory):
     copied = json.dumps(EXAMPLES[0][1])
     res = interpret("um T-rex azul pequeno", fake_llm_factory([copied]))
     assert res.ok and any("repetiu um exemplo" in w for w in res.warnings)
+
+
+def test_keyword_checks_flag_missing_requests():
+    from ninho_studio.ai.interpreter import keyword_checks
+    from ninho_studio.spec import default_spec
+
+    spec = default_spec()
+    desc = "Um T-rex branco musculoso, cabeça grande, cauda longa e rugindo"
+    warnings = keyword_checks(desc, spec)
+    assert any("body_bulk" in w for w in warnings)
+    assert any("head_size" in w for w in warnings)
+    assert any("tail_length" in w for w in warnings)
+    assert any("jaw_open" in w for w in warnings)
+    spec["proportions"].update(body_bulk=1.3, head_size=1.3, tail_length=1.4, jaw_open=0.9)
+    assert keyword_checks(desc, spec) == []

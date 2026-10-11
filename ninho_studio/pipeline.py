@@ -80,6 +80,7 @@ def generate(
 
     t0 = time.perf_counter()
     model, notes, atlas, spec = _build_and_pack(spec, settings)
+    notes += color_notes(spec)
     model.meta["seed"] = settings.seed
     t1 = time.perf_counter()
     if atlas.upgraded:
@@ -125,6 +126,22 @@ def generate(
         base_name=name,
         timings={"construcao_s": t1 - t0, "uv_textura_s": t2 - t1, "exportacao_validacao_s": t3 - t2},
     )
+
+
+def color_notes(spec: dict[str, Any]) -> list[str]:
+    """Avisos quando a barriga quase não se distingue do corpo (contraste baixo)."""
+    from .palette import contrast_ratio, hex_to_rgb, luminance, rgb_to_hex, shade
+
+    colors = spec["colors"]
+    prim, belly = hex_to_rgb(colors["primary"]), hex_to_rgb(colors["belly"])
+    ratio = contrast_ratio(prim, belly)
+    if ratio >= 1.15:
+        return []
+    suggestion = "#e6d6a8" if luminance(prim) > 0.6 else rgb_to_hex(shade(prim, 3))
+    return [
+        f"barriga {colors['belly']} quase igual à cor principal {colors['primary']} (contraste {ratio:.2f}); "
+        f"para destacar o ventre, use cor_barriga na Etapa 3 (ex.: {suggestion})"
+    ]
 
 
 def _build_and_pack(spec: dict[str, Any], settings: BuildSettings):

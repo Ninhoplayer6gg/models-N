@@ -57,7 +57,8 @@ não puderam ser baixados (ver [RELATORIO-DE-TESTES.md](RELATORIO-DE-TESTES.md))
    configurável). Se nenhuma passar, o resultado é `ok=False` com os erros e a última resposta.
 6. **Avisos informativos** (não bloqueiam): a IA repetiu um exemplo do prompt; preencheu
    poucos campos; a descrição pede algo que esta versão não constrói (ex.: "triceratops");
-   cores citadas × cores geradas (com nome aproximado em português).
+   palavras da descrição que o JSON não refletiu (musculoso, cabeça grande, cauda longa,
+   rugindo, gigante, filhote...); cores citadas × cores geradas (com nome aproximado).
 
 ### Esquema (resumo)
 
@@ -75,6 +76,20 @@ não puderam ser baixados (ver [RELATORIO-DE-TESTES.md](RELATORIO-DE-TESTES.md))
 
 Campos ausentes recebem o padrão do T-rex verde. O JSON completo está em
 `ninho_studio.spec.json_schema()`.
+
+## Primeiro teste real (Colab, GPU T4)
+
+Feito pelo usuário com a v0.1.0: modelo carregado em 33,6 s; interpretação em 11,1 s;
+**JSON válido na 1ª tentativa**. A IA acertou branco, olhos vermelhos, listras escuras e
+cabeça grande, mas ignorou "musculoso" e repetiu as proporções do primeiro exemplo do prompt
+(que era parecido demais com a descrição padrão do notebook). Na v0.1.1:
+
+* os exemplos do prompt foram trocados por descrições diferentes da descrição padrão, e um
+  deles mostra "musculoso → body_bulk 1.3";
+* a **conferência de palavras** (`keyword_checks`) compara a descrição com o JSON e avisa,
+  por exemplo: *"A descrição pede um corpo musculoso/robusto, mas a IA deixou
+  proportions.body_bulk = 1.0. Se quiser, ajuste tronco_volume (ex.: 1.25) na Etapa 3."*
+  Nada é corrigido sozinho: o resultado continua sendo o da IA e o aviso diz o que mudar.
 
 ## Limites do Colab gratuito
 

@@ -1,8 +1,8 @@
 {
   "tool": "Ninho Model Studio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "spec_version": "1.0",
-  "generated_at": "2026-10-11T13:32:43+00:00",
+  "generated_at": "2026-10-11T14:05:48+00:00",
   "mode": "procedural",
   "mode_label": "Procedural (parâmetros preenchidos manualmente)",
   "description": "Um T-rex verde, com listras escuras nas costas, barriga creme, olhos amarelos e boca entreaberta.",
@@ -104,8 +104,8 @@
     "bbmodel": "trex_verde.bbmodel",
     "texture": "trex_verde.png",
     "sha256": {
-      "trex_verde.bbmodel": "163779db4c2a28e41f6c27bed400b91dceab2d9b1341fb1c63356120f658eef6",
-      "trex_verde.png": "16ce74a9e010512e27ee2d43e02a5bb258b94f97323802a7a6a0980b797c8470"
+      "trex_verde.bbmodel": "b22ab0b8e877ff9555556cb19314a985fffaeb86870d08309c68c56a8ad55f5c",
+      "trex_verde.png": "4253ed895713ba603bc80625c53af0416d0b6a9f8cd0be8160945200a6503242"
     }
   },
   "blockbench": {

@@ -50,34 +50,36 @@ SYSTEM_PROMPT = (
     "crista de penas -> feather_crest; pouco detalhado/simples -> low; muito detalhado -> high."
 )
 
+# Exemplos propositalmente diferentes da descrição padrão do notebook: no primeiro teste real
+# (Colab, T4) o modelo copiou as proporções de um exemplo parecido demais com o pedido.
 EXAMPLES = [
     (
-        "Um T-rex verde-escuro com cabeça enorme, barriga creme, listras pretas nas costas e olhos amarelos.",
+        "T-rex marrom-escuro, musculoso e enorme, cabeça grande, manchas pretas, olhos vermelhos, rugindo.",
         {
             "species": "t_rex",
-            "name": "T-rex verde-escuro",
-            "scale": 1.0,
+            "name": "T-rex marrom",
+            "scale": 1.35,
             "proportions": {
-                "head_size": 1.4, "snout_length": 1.0, "jaw_open": 0.35, "neck_length": 1.0, "body_length": 1.0,
-                "body_bulk": 1.0, "arm_length": 1.0, "leg_length": 1.0, "leg_thickness": 1.0, "tail_length": 1.0,
-                "tail_thickness": 1.0,
+                "head_size": 1.3, "snout_length": 1.0, "jaw_open": 1.0, "neck_length": 1.0, "body_length": 1.05,
+                "body_bulk": 1.3, "arm_length": 1.0, "leg_length": 1.0, "leg_thickness": 1.25, "tail_length": 1.0,
+                "tail_thickness": 1.15,
             },
             "colors": {
-                "primary": "#2f5a2a", "secondary": "#4f7a3a", "belly": "#e8ddb0", "pattern": "#1c1c1c",
-                "eyes": "#f2c12e", "claws": "#ece4cc", "mouth": "#8a2c2c",
+                "primary": "#5a3d26", "secondary": "#7a5636", "belly": "#d9c39a", "pattern": "#1e1410",
+                "eyes": "#d42020", "claws": "#e8dcc4", "mouth": "#7a2222",
             },
-            "pattern": {"type": "stripes", "intensity": 0.75},
-            "skin": "scales",
+            "pattern": {"type": "spots", "intensity": 0.7},
+            "skin": "rough",
             "features": {"brow_horns": False, "back_spikes": False, "teeth_visible": True, "scars": False,
                          "feather_crest": False},
             "detail_level": "medium",
         },
     ),
     (
-        "Filhote de tiranossauro marrom-claro com manchas escuras, pernas longas, cauda curta e boca fechada. Bem simples.",
+        "Filhote de tiranossauro verde-claro com listras finas, pernas longas, cauda curta e boca fechada. Bem simples.",
         {
             "species": "t_rex",
-            "name": "Filhote marrom",
+            "name": "Filhote verde",
             "scale": 0.7,
             "proportions": {
                 "head_size": 1.2, "snout_length": 0.85, "jaw_open": 0.0, "neck_length": 1.0, "body_length": 0.95,
@@ -85,10 +87,10 @@ EXAMPLES = [
                 "tail_thickness": 0.9,
             },
             "colors": {
-                "primary": "#9a7448", "secondary": "#b58e5e", "belly": "#efe0c0", "pattern": "#4a3222",
-                "eyes": "#d9a33a", "claws": "#efe6d2", "mouth": "#9a4040",
+                "primary": "#7fb04a", "secondary": "#9cc766", "belly": "#eef0c8", "pattern": "#3f6a25",
+                "eyes": "#e0a02a", "claws": "#efe6d2", "mouth": "#9a4040",
             },
-            "pattern": {"type": "spots", "intensity": 0.6},
+            "pattern": {"type": "stripes", "intensity": 0.4},
             "skin": "smooth",
             "features": {"brow_horns": False, "back_spikes": False, "teeth_visible": False, "scars": False,
                          "feather_crest": False},

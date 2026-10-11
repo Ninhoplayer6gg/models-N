@@ -1,0 +1,25 @@
+Ninho Model Studio — tyranos_rex
+=================================
+
+Arquivos deste pacote
+---------------------
+tyranos_rex.bbmodel   Projeto EDITÁVEL do Blockbench (formato bedrock, versão do arquivo 5.0),
+                 com cubos, grupos (ossos), pivôs, UV e a textura embutida.
+tyranos_rex.png       Textura (128x128) gerada de forma PROCEDURAL (regras + seed, sem IA).
+tyranos_rex.json      Configuração: modo (ia), descrição, parâmetros, seed, versão e validação.
+tyranos_rex_vistas.png      Vistas: perspectiva, lado, frente, topo, traseira e ventre.
+tyranos_rex_atlas.png       Atlas UV ampliado com o nome de cada cubo e a letra de cada face
+                       (N=norte/frente, S=sul/trás, L=leste/direita do animal, O=oeste/esquerda,
+                       C=cima, B=baixo).
+tyranos_rex_esqueleto.png   Pivôs (pontos vermelhos) e hierarquia dos ossos (linhas azuis).
+tyranos_rex_3d.html         Visualizador 3D (abra no navegador; funciona offline).
+
+Projeto editável x formatos do Minecraft
+----------------------------------------
+O .bbmodel é o arquivo de trabalho do Blockbench; o jogo não lê .bbmodel.
+Para usar no Minecraft, abra o .bbmodel no Blockbench (app ou https://web.blockbench.net)
+e exporte para o formato do destino:
+  * Bedrock: File > Export > Export Bedrock Geometry (.geo.json) + a textura .png.
+  * GeckoLib / Java: exportadores específicos ficam para uma etapa posterior.
+
+A criatura olha para -Z (norte), com o lado direito em +X, pés em Y=0.

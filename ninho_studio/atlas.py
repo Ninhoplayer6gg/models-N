@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .model import Model
-from .uv import PackItem, atlas_usage, box_uv_footprint, pack_best
+from .uv import PackItem, atlas_usage, box_uv_footprint, box_uv_shape, pack_best
 
 
 class AtlasError(ValueError):
@@ -26,7 +26,8 @@ def assign_uvs(model: Model, requested_size: int, auto_upgrade: bool = True) -> 
     items = []
     for idx, cube in enumerate(cubes):
         w, h = box_uv_footprint(cube.size)
-        items.append(PackItem(key=idx, width=w, height=h, group=int(cube.tags.get("region", 9))))
+        items.append(PackItem(key=idx, width=w, height=h, group=int(cube.tags.get("region", 9)),
+                              rects=box_uv_shape(cube.size)))
     sizes = [requested_size]
     if auto_upgrade and requested_size < 256:
         sizes.append(256)

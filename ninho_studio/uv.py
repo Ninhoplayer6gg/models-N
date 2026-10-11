@@ -142,6 +142,25 @@ class PackItem:
     width: int
     height: int
     group: int = 0
+    # retângulos realmente ocupados, relativos ao canto (x0, y0, x1, y1); None = o retângulo inteiro
+    rects: Optional[list[tuple[int, int, int, int]]] = None
+
+    def occupied(self) -> list[tuple[int, int, int, int]]:
+        return self.rects if self.rects is not None else [(0, 0, self.width, self.height)]
+
+
+def box_uv_shape(size: Sequence[float]) -> list[tuple[int, int, int, int]]:
+    """Partes do retângulo do box UV que têm faces: a faixa de cima (cima/baixo) e a de baixo (laterais).
+
+    Os dois cantos de cima (d x d) ficam vazios e podem receber outros cubos.
+    """
+    w, h, d = (int(math.floor(v + _EPS)) for v in size)
+    rects = []
+    if d > 0 and w > 0:
+        rects.append((d, 0, d + 2 * w, d))
+    if h > 0 and d + w > 0:
+        rects.append((0, d, 2 * (d + w), d + h))
+    return rects
 
 
 class _Skyline:
@@ -230,14 +249,58 @@ def pack(items: Iterable[PackItem], width: int, height: int, grouped: bool = Tru
     return out
 
 
+def pack_shapes(items: Sequence[PackItem], width: int, height: int, order: str = "grouped") -> Optional[dict[Hashable, tuple[int, int]]]:
+    """Encaixa pela forma exata (usa os cantos vazios do box UV). Primeiro lugar livre de cima para baixo.
+
+    Para cada item calcula, com uma tabela de somas acumuladas, todas as posições
+    em que as partes ocupadas não colidem com nada já colocado.
+    """
+    items = list(items)
+    if order == "grouped":
+        items.sort(key=lambda it: (it.group, -it.height, -it.width, str(it.key)))
+    elif order == "area":
+        items.sort(key=lambda it: (-it.width * it.height, -it.height, str(it.key)))
+    else:
+        items.sort(key=lambda it: (-it.height, -it.width, str(it.key)))
+    occ = np.zeros((height, width), dtype=np.int32)
+    out: dict[Hashable, tuple[int, int]] = {}
+    for it in items:
+        if it.width == 0 or it.height == 0:
+            out[it.key] = (0, 0)
+            continue
+        if it.width > width or it.height > height:
+            return None
+        sat = np.zeros((height + 1, width + 1), dtype=np.int32)
+        sat[1:, 1:] = occ.cumsum(axis=0).cumsum(axis=1)
+        nx, ny = width - it.width + 1, height - it.height + 1
+        ok = np.ones((ny, nx), dtype=bool)
+        for x0, y0, x1, y1 in it.occupied():
+            area = (sat[y1:y1 + ny, x1:x1 + nx] - sat[y0:y0 + ny, x1:x1 + nx]
+                    - sat[y1:y1 + ny, x0:x0 + nx] + sat[y0:y0 + ny, x0:x0 + nx])
+            ok &= area == 0
+        found = np.argwhere(ok)
+        if not len(found):
+            return None
+        y, x = (int(v) for v in found[0])
+        for x0, y0, x1, y1 in it.occupied():
+            occ[y + y0:y + y1, x + x0:x + x1] = 1
+        out[it.key] = (x, y)
+    return out
+
+
 def pack_best(items: Sequence[PackItem], width: int, height: int) -> tuple[Optional[dict[Hashable, tuple[int, int]]], str]:
-    """Tenta primeiro manter as partes agrupadas (atlas organizado); se não couber, prioriza espaço."""
-    res = pack(items, width, height, grouped=True)
-    if res is not None:
-        return res, "agrupado por região"
-    res = pack(items, width, height, grouped=False)
-    if res is not None:
-        return res, "ordenado por altura"
+    """Tenta, em ordem: atlas organizado por região; depois encaixes mais compactos."""
+    attempts = [
+        ("agrupado por região", lambda: pack(items, width, height, grouped=True)),
+        ("agrupado por região, compacto", lambda: pack_shapes(items, width, height, "grouped")),
+        ("compacto por altura", lambda: pack_shapes(items, width, height, "height")),
+        ("compacto por área", lambda: pack_shapes(items, width, height, "area")),
+        ("ordenado por altura", lambda: pack(items, width, height, grouped=False)),
+    ]
+    for label, fn in attempts:
+        res = fn()
+        if res is not None:
+            return res, label
     return None, ""
 
 

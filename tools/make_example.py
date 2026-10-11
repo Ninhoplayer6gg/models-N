@@ -9,6 +9,7 @@ baixar os pesos do Qwen; ver docs/RELATORIO-DE-TESTES.md.)
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -36,6 +37,26 @@ def example() -> None:
     print(result.validation.summary_pt())
     for key, path in paths.items():
         print(f"{key:10s} {os.path.relpath(path, ROOT)}")
+
+
+def white_from_colab() -> None:
+    """Reconstrói o T-rex branco do primeiro teste real da IA (Colab, GPU T4), sem chamar a IA de novo.
+
+    Usa o .json baixado do Colab (pasta colab_original/), que guarda a resposta validada da IA.
+    """
+    folder = os.path.join(ROOT, "examples", "trex-branco-ia")
+    with open(os.path.join(folder, "colab_original", "tyranos_rex.json"), encoding="utf-8") as fh:
+        cfg = json.load(fh)
+    s = cfg["settings"]
+    settings = BuildSettings(seed=int(cfg["seed"]), texture_size=int(s["texture_size_requested"]),
+                             element_budget=int(s["element_budget"]))
+    note = (f"reconstruído com a versão atual a partir da interpretação da IA feita no Colab "
+            f"(versão {cfg['version']}, {cfg['generated_at'][:10]}); a IA não foi chamada de novo")
+    result = generate(cfg["parameters"], settings, mode=cfg["mode"], description=cfg["description"],
+                      ai_info=cfg["ai"], manual_adjustments=cfg["manual_adjustments"], extra_notes=[note],
+                      base_name="tyranos_rex")
+    save_outputs(result, folder)
+    print(result.validation.summary_pt().splitlines()[0], "|", "; ".join(result.notes))
 
 
 VARIANTS = [
@@ -81,4 +102,5 @@ def gallery() -> None:
 
 if __name__ == "__main__":
     example()
+    white_from_colab()
     gallery()

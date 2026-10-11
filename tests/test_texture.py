@@ -86,3 +86,36 @@ def test_skin_types_and_colors_apply():
         s2 = default_spec()
         s2["skin"] = skin
         generate(s2, BuildSettings(seed=1), mode="procedural")
+
+
+def test_white_creature_stays_white():
+    """Teste real do usuário no Colab: T-rex branco saía cinza (rampa escurecia 15% por tom)."""
+    from ninho_studio.palette import contrast_ratio, detail_dark, luminance, shade
+
+    white = (255, 255, 255)
+    assert luminance(shade(white, -1)) > 0.75 and luminance(shade(white, -2)) > 0.6
+    assert contrast_ratio(white, detail_dark(white)) > 4.5  # contorno do olho legível
+    s = default_spec()
+    s["colors"].update(primary="#ffffff", secondary="#f2f2f2", belly="#fffbe8", pattern="#333333", eyes="#ff6347")
+    res = generate(s, BuildSettings(seed=42), mode="procedural")
+    torso = res.model.find_cube("torso", "torso")
+    for face in ("up", "east", "west"):
+        region = _region(res.texture, torso, face)
+        rgb = region[..., :3].reshape(-1, 3).astype(int)
+        light = (rgb.min(axis=1) > 200).mean()
+        assert light > 0.6, (face, light)  # a maior parte continua branca (listras à parte)
+
+
+def test_green_skin_texture_is_subtle():
+    """A microtextura (escamas) muda pouco cada texel: só 40% do caminho até o tom vizinho."""
+    def tex(skin):
+        sp = default_spec()
+        sp["pattern"]["type"] = "none"
+        sp["skin"] = skin
+        return generate(sp, BuildSettings(seed=42), mode="procedural").texture[..., :3].astype(int)
+
+    smooth, scales = tex("smooth"), tex("scales")
+    lum = lambda a: 0.2126 * a[..., 0] + 0.7152 * a[..., 1] + 0.0722 * a[..., 2]  # noqa: E731
+    diff = np.abs(lum(scales) - lum(smooth))
+    assert (diff > 0).sum() > 100  # a textura existe
+    assert diff.max() < 30  # e é sutil

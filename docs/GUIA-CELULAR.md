@@ -54,5 +54,7 @@ pedir outra leitura.
 | "A IA não carregou" | Tente o modelo 0.5B ou *Ambiente de execução → Reiniciar sessão* e rode a Etapa 1 de novo. Enquanto isso, use o modo procedural. |
 | "A IA não produziu um JSON válido" | A resposta da IA aparece na mensagem. Aumente *criatividade_ia* (ex.: 0.3; aí a seed passa a variar a resposta), simplifique a descrição ou use o modo procedural. |
 | A sessão caiu / os arquivos sumiram | O Colab gratuito encerra sessões paradas. Rode as etapas de novo; marque *copiar_para_o_google_drive* na Etapa 5 para guardar os arquivos. |
+| Aviso "A descrição pede ..., mas a IA deixou ..." | A IA não seguiu essa parte do pedido. Ajuste o controle indicado na Etapa 3 (ex.: *tronco_volume* 1.25 para "musculoso") e rode a Etapa 3 e a 4 — a IA não é chamada de novo. |
+| Aviso "barriga quase igual à cor principal" | Escolha uma *cor_barriga* com mais contraste (o aviso sugere uma). |
 | Aviso "orçamento de elementos" | Aumente *orcamento_elementos* ou reduza o detalhe. |
 | Aviso "escala reduzida" / "textura 256" | O modelo ficou grande demais para o atlas; o programa ajustou e avisou. |

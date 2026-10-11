@@ -17,6 +17,7 @@ pagas. Primeira versão: **T-rex ajustável**.
 | Notebook do Colab, 5 etapas em português, controles de toque | [`Ninho-Model-Studio.ipynb`](Ninho-Model-Studio.ipynb) |
 | Código-fonte | [`ninho_studio/`](ninho_studio/) |
 | Exemplo T-rex verde (`.bbmodel`, `.png`, `.json`, `.zip`, prévias, visualizador 3D) | [`examples/trex-verde/`](examples/trex-verde/) |
+| T-rex branco do **primeiro teste real da IA no Colab** (com antes/depois das correções) | [`examples/trex-branco-ia/`](examples/trex-branco-ia/) |
 | Verificação no Blockbench 5.2.2 (capturas, relatório, `.geo.json`, pose de teste) | [`examples/trex-verde/blockbench/`](examples/trex-verde/blockbench/) |
 | Guia do celular · formato `.bbmodel` · IA · relatório de testes | [`docs/`](docs/) |
 
@@ -82,10 +83,10 @@ unhas e dedos; padrões **listras, manchas, faixas, mosqueado** contínuos entre
 
 Validação automática de dimensões, UUIDs, referências, hierarquia, UV fora da textura,
 consistência do box UV, sobreposição no atlas, faces sem pintura, pivôs e chão.
-122 testes automáticos; o exemplo e 8 variantes foram **abertos no Blockbench 5.2.2** sem
-avisos nem erros do validador dele. **O Qwen real não pôde ser executado neste ambiente**
-(Hugging Face bloqueado) — veja exatamente o que foi e o que não foi testado em
-[`docs/RELATORIO-DE-TESTES.md`](docs/RELATORIO-DE-TESTES.md).
+128 testes automáticos; os exemplos e 9 variantes foram **abertos no Blockbench 5.2.2** sem
+avisos nem erros do validador dele. A IA real (Qwen2.5-Coder-1.5B, GPU T4) já rodou no Colab
+num teste do usuário: JSON válido na 1ª tentativa em 11 s; as falhas observadas e as correções
+estão em [`docs/RELATORIO-DE-TESTES.md`](docs/RELATORIO-DE-TESTES.md).
 
 ## Desenvolvimento
 
@@ -101,7 +102,7 @@ Para adicionar outra criatura (outros dinossauros, quadrúpedes, humanoides): cr
 
 ### Próximos passos sugeridos
 
-1. Rodar o modo IA no Colab com 10–20 descrições e medir acertos; ajustar o prompt.
+1. Rodar o modo IA no Colab com 10–20 descrições variadas (o prompt mudou na v0.1.1) e anotar acertos.
 2. Exportadores Bedrock/GeckoLib e animações básicas (andar, rugir) usando os ossos atuais.
 3. Novos planos corporais (raptor, quadrúpede, humanoide) reaproveitando atlas, textura e validação.
-4. Empacotador de atlas que aproveite os cantos vazios do box UV (texturas menores).
+4. Opção de UV espelhado para lados esquerdo/direito (texturas ainda menores).

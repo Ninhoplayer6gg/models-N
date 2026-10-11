@@ -1,7 +1,42 @@
-# Relatório de testes — Ninho Model Studio v0.1.0
+# Relatório de testes — Ninho Model Studio
 
-Data: 11/10/2026. Este relatório diz **exatamente** o que foi testado, como, e o que **não**
-pôde ser testado.
+Este relatório diz **exatamente** o que foi testado, como, e o que **não** pôde ser testado.
+
+## Atualização v0.1.1 — primeiro teste real da IA (Colab, feito pelo usuário)
+
+O usuário rodou o notebook v0.1.0 no Google Colab e enviou o `.zip` gerado
+(`examples/trex-branco-ia/colab_original/tyranos_rex.json` guarda a configuração original).
+
+| Item | Resultado registrado no `.json` |
+|---|---|
+| Ambiente | GPU **T4** (`cuda`, float16), transformers **5.18.0**, torch **2.11.0+cu130** |
+| Modelo | Qwen/Qwen2.5-Coder-1.5B-Instruct, carregado em **33,6 s** |
+| Interpretação | **11,1 s**, 277 tokens, **JSON válido na 1ª tentativa** |
+| Descrição | "Um T-rex branco musculoso, cabeça grande, listras escuras nas costas, barriga creme e olhos vermelhos" |
+| Acertos da IA | branco (`#ffffff`), olhos vermelhos (`#ff6347`), listras escuras (`stripes`, `#333333`), cabeça grande (`head_size` 1.4), barriga creme (`#fffbe8`, porém quase branca) |
+| Erros da IA | ignorou "musculoso" (`body_bulk` ficou 1.0); copiou as proporções do 1º exemplo do prompt |
+
+Problemas encontrados no **nosso** código (não na IA) e corrigidos na v0.1.1:
+
+1. **Branco saía cinza:** a rampa de tons escurecia 15% por tom e a microtextura multiplicava
+   as cores. Agora cores quase brancas escurecem em passos menores e com sombra fria
+   (azul-acinzentada), e toda a pintura da pele trabalha por tons da paleta (ajustes de
+   textura usam só 40% do caminho até o tom vizinho). O verde padrão ficou visualmente igual.
+2. **Barriga sem contraste:** aviso automático quando a barriga quase não se distingue do
+   corpo (contraste < 1,15), sugerindo uma cor.
+3. **Textura subia para 256 sem necessidade:** novo empacotador que encaixa cubos nos cantos
+   vazios do box UV (forma exata, tabela de somas acumuladas). O caso do teste (cabeça 1,4×)
+   e as variantes de 42 e 46 cubos agora cabem em 128×128.
+4. **IA copiando o exemplo:** exemplos do prompt trocados por descrições diferentes da
+   descrição padrão do notebook (incluindo "musculoso") e nova **conferência de palavras**:
+   se a descrição pede algo (musculoso, cabeça grande, cauda longa, rugindo, gigante...) que
+   o JSON da IA não reflete, o notebook avisa qual controle ajustar — sem corrigir sozinho.
+   *Esse novo prompt ainda não foi testado com o Qwen real.*
+
+Verificação depois das correções: `examples/trex-branco-ia/` reconstruído a partir da resposta
+da IA do Colab (sem chamar a IA de novo) abre no Blockbench 5.2.2 com 0 avisos/erros,
+textura 128, ida e volta idêntica e exportação Bedrock correta (IoU 0,97/1,00/0,97).
+Antes/depois em `examples/trex-branco-ia/antes_depois.png`.
 
 ## Ambiente usado
 
@@ -15,8 +50,8 @@ pôde ser testado.
 
 | Ambiente | Resultado |
 |---|---|
-| Python do sistema (sem torch) | **118 passaram, 2 pulados** (os 2 dependem de torch/transformers) |
-| Ambiente com torch + transformers | **122 passaram** |
+| Python do sistema (sem torch) | **124 passaram, 2 pulados** (os 2 dependem de torch/transformers) |
+| Ambiente com torch + transformers | **128 passaram** |
 
 O que cobrem:
 
@@ -82,10 +117,10 @@ O que cobrem:
     braço e antebraço) aplicada dentro do Blockbench move cada parte em torno do pivô certo,
     sem peças soltas; a mesma pose na prévia do Ninho dá IoU 0,985
     (`comparacao_pose.png`).
-* **8 variantes** (galeria, 3 níveis de detalhe, textura 256, espinhos, chifres, penas,
-  cicatrizes): todas com 0 avisos/erros do validador do Blockbench, ida e volta idêntica,
-  exportação Bedrock correta e IoU entre 0,96 e 0,999
-  (`docs/verificacao-blockbench-variantes.json`).
+* **9 variantes** (galeria, 3 níveis de detalhe, textura 256, espinhos, chifres, penas,
+  cicatrizes e o caso branco com cabeça 1,4×): todas com 0 avisos/erros do validador do
+  Blockbench, ida e volta idêntica, exportação Bedrock correta e IoU entre 0,96 e 1,00
+  (`docs/verificacao-blockbench-variantes.json`, gerado por `tools/verify_variants.py`).
 * Inspeção visual feita por mim nas capturas: geometria, textura nas faces certas (olhos nas
   laterais, ventre claro embaixo, boca vermelha, dentes, dedos) e postura iguais à prévia.
 
@@ -103,14 +138,14 @@ dentro da saída do Colab.
 
 ## 4. O que NÃO foi testado
 
-* **O Qwen real.** O acesso ao Hugging Face estava bloqueado, então os pesos do
-  Qwen2.5-Coder-1.5B-Instruct não foram baixados: **a qualidade da interpretação da IA não foi
-  medida**, nem o tempo real na GPU T4/CPU do Colab. Foi testado o código ao redor (carregamento
-  e geração com `transformers`, validação, reparo, mensagens). Primeiro passo recomendado:
-  rodar a Etapa 2 + 4 no Colab com algumas descrições e anotar acertos/erros.
-* **O notebook dentro do Google Colab.** Ele foi executado num kernel Jupyter local. Não foram
-  testados aqui: a renderização dos formulários do Colab no celular, `files.download`,
-  montagem do Google Drive e os limites de sessão.
+* **O Qwen real neste ambiente de desenvolvimento** (Hugging Face bloqueado). A IA real foi
+  rodada **uma vez, pelo usuário, no Colab** (seção de atualização acima): um único caso não mede
+  a taxa de acerto. O prompt novo da v0.1.1 ainda não rodou com o Qwen real. Próximo passo:
+  10–20 descrições variadas, anotando acertos e erros.
+* **Partes do Colab que o teste do usuário não registra:** o `.zip` mostra que as Etapas 1 a 5
+  funcionaram (inclusive o download), mas não diz como ficaram os formulários no celular, se o
+  visualizador 3D abriu na saída do Colab, nem o comportamento com o Google Drive e os limites
+  de sessão.
 * **Minecraft.** O `.geo.json` exportado pelo Blockbench não foi carregado no jogo.
 
 ## 5. Exemplo T-rex verde

@@ -93,8 +93,56 @@ def side_by_side(bbmodel_path: str, shots_dir: str, out_path: str) -> None:
     sheet.save(out_path)
 
 
+def pose_compare(bbmodel_path: str, shots_dir: str, pose_path: str, out_png: str) -> dict:
+    """Aplica a mesma pose de teste do Blockbench na prévia do Ninho e compara a vista lateral."""
+    import copy
+
+    from PIL import ImageDraw
+
+    from ninho_studio.render import _font
+
+    bb = json.load(open(bbmodel_path, encoding="utf-8"))
+    pose = json.load(open(pose_path, encoding="utf-8"))
+    posed = copy.deepcopy(bb)
+    for g in posed["groups"]:
+        if g["name"] in pose:
+            g["rotation"] = [g["rotation"][i] + pose[g["name"]][i] for i in range(3)]
+    mesh = build_mesh(posed)
+    tex = texture_array(bb)
+    ours = render(mesh, tex, VIEWS["lado_direito"], size=600, background=None)
+    shot = np.array(Image.open(os.path.join(shots_dir, "bb_pose_lado_direito.png")).convert("RGBA"))
+    a, b = _mask(shot), _mask(ours)
+    iou = round(float((a & b).sum() / max(1, (a | b).sum())), 4)
+    ours_img = Image.fromarray(render(mesh, tex, VIEWS["lado_direito"], size=420,
+                                      background=(255, 255, 255, 255))).convert("RGB")
+    shot_img = Image.alpha_composite(Image.new("RGBA", (shot.shape[1], shot.shape[0]), (255, 255, 255, 255)),
+                                     Image.fromarray(shot)).convert("RGB")
+    arr = np.array(shot_img)
+    ys, xs = np.nonzero((arr < 250).any(axis=2))
+    crop = shot_img.crop((xs.min() - 20, ys.min() - 20, xs.max() + 20, ys.max() + 20))
+    k = 420 / max(crop.size)
+    crop = crop.resize((int(crop.width * k), int(crop.height * k)))
+    row = Image.new("RGB", (840, 460), "white")
+    row.paste(ours_img, (0, 40))
+    row.paste(crop, (420 + (420 - crop.width) // 2, 40 + (420 - crop.height) // 2))
+    d = ImageDraw.Draw(row)
+    d.text((10, 8), "Pose de teste: prévia do Ninho", fill=(20, 20, 20), font=_font(17))
+    d.text((430, 8), "Pose de teste: Blockbench 5.2.2", fill=(20, 20, 20), font=_font(17))
+    row.save(out_png)
+    return {"pose": pose, "iou_lado_direito": iou}
+
+
 if __name__ == "__main__":
-    result = compare(sys.argv[1], sys.argv[2])
-    print(json.dumps(result, indent=2))
-    if len(sys.argv) > 3:
-        side_by_side(sys.argv[1], sys.argv[2], sys.argv[3])
+    # uso: compare_renders.py modelo.bbmodel pasta_capturas [lado_a_lado.png] [--pose pose.json saida.png]
+    args = sys.argv[1:]
+    pose_args = None
+    if "--pose" in args:
+        i = args.index("--pose")
+        pose_args = args[i + 1:i + 3]
+        args = args[:i]
+    result = compare(args[0], args[1])
+    if pose_args:
+        result["pose"] = pose_compare(args[0], args[1], pose_args[0], pose_args[1])
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    if len(args) > 2:
+        side_by_side(args[0], args[1], args[2])
